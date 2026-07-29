@@ -163,6 +163,6 @@ archive/     지난 단계 기록 — 근거 추적할 때만 열어본다
 
 **원격 저장소: `github.com/lgosoup/keunsamchon-agent-plan` (public, 2026-07-29 생성)**
 
-- **`docs/`·`archive/`는 public 전제로 자유롭게 쓴다.** 내용 공개 여부를 매번 확인하지 않는다.
-- **`reference/`는 git에서 제외되어 있다** (`.gitignore`). 참여기업이 제공한 기업과제 원문과 실무자와의 카톡 원문은 제3자 자료라서다. 로컬에는 그대로 있으므로 작업에는 계속 사용한다.
+- **`.env` 외에는 전부 올린다.** 팀원과 함께 보는 저장소이므로 `docs/`·`archive/`·`reference/` 모두 공개 대상이다. 내용의 공개 적정성을 매번 확인하지 않는다.
+- **예외는 `.claude/settings.local.json`.** 비밀은 아니지만 사람마다 다르게 두는 개인 권한 설정이라 공유하지 않는다.
 - **public → private 전환은 사용자 지시로만 한다.** 반대로 새 저장소를 만들 때는 private가 기본이다.
