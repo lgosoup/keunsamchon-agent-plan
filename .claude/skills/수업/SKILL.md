@@ -61,7 +61,7 @@ argument-hint: <일차> "1. 문제 내용" "2. 문제 내용" ...
 | 에이전트 간 상태 공유 / 메모리 | `debate/_결정대장.md`, `docs/91_진행로그.md` | 수집일·90일 규칙, 회신 결과 축적 (`30` ⑦ 개선 루프) |
 | 도구·MCP | `mcp__sequential-thinking__sequentialthinking` (`CLAUDE.md` 0절) | 축3의 KOTRA OpenAPI (`30` ②) |
 | 휴먼 인 더 루프 | 승인 전 `docs/` 수정 금지 (이 스킬 4단계) | 브리프의 **반자동** — 발송 전 사람 승인 (`00` 2절, `30` ⑥), `32` 1절 제약 ⑥ |
-| 평가·검증 / LLM-as-a-Judge | `project-critic` 적대적 검토, `02` 7절 비교·검증 서술 | `40` V1-b(사람↔LLM 대조), V2~V6 |
+| 평가·검증 / LLM-as-a-Judge | `project-critic` 적대적 검토, `02` 7절 비교·검증 서술 | `40` V1-b·V2-b(사람↔LLM 대조), V3~V8 |
 | 불확실성·환각 억제 | 사실/가설/미확인 표기, `12_미팅_질문지.md`로의 이관 | `32` 1절 제약 ②(값과 근거를 함께), 근거 칸 필수 |
 | 실패 처리·폴백 | — | `30` ④ 제외 3종, ⑤ 보류 후 60일, **판정 불가 상태**(`90` 리스크 17) |
 | 활용 방식 3분류 (Chatbot/Workflow/Agent) | `plan-debate` = Workflow | **미결정** — `30` ⑦에 Workflow와 Agent가 섞여 있다 (`90` 미결정 #8) |
