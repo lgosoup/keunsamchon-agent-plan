@@ -123,7 +123,7 @@
 docs/        현재 유효한 기준 문서 — 여기만 읽으면 프로젝트를 이해할 수 있어야 한다   → 파일별 역할은 아래 표
 docs/수업/   수업(하네스 엔지니어링) 개념 정리 + 문제-답변 기록 — 기준 문서가 아니다
 specs/       기능별 Spec — 지정 형태(6요소) 카드 한 장. 근거를 쓰지 않는다          → specs/README.md
-기준/        사람이 읽고 고치는 판정 기준·판정시트 — 값과 문장. Spec과 한 세트       → 기준/README.md
+기준/         사람이 읽고 고치는 판정 기준·판정시트 — 값과 문장. Spec과 한 세트       → 기준/README.md
 reference/   원문 자료 (수정 금지) — 자료마다 근거 지위가 다르다                    → reference/README.md
 archive/     지난 단계 기록 — 근거 추적할 때만 열어본다                            → archive/README.md
 .claude/     하네스 A 실행체 — 서브에이전트·스킬                                   → .claude/README.md
