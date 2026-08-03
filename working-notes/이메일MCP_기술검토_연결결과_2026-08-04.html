@@ -1,0 +1,145 @@
+<meta charset="utf-8">
+<title>이메일 발송 MCP 기술 검토 및 연결 결과</title>
+<style>
+  @page { size: A4; margin: 22mm 18mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Malgun Gothic", "맑은 고딕", "Noto Sans KR", sans-serif;
+    color: #1a1a1a;
+    line-height: 1.65;
+    font-size: 13px;
+    max-width: 780px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 21px;
+    color: #12305c;
+    border-bottom: 3px solid #12305c;
+    padding-bottom: 10px;
+    margin-bottom: 4px;
+  }
+  .subtitle { color: #555; font-size: 12.5px; margin-bottom: 22px; }
+  h2 {
+    font-size: 15.5px;
+    color: #12305c;
+    background: #eef2f8;
+    padding: 6px 10px;
+    border-left: 5px solid #12305c;
+    margin-top: 26px;
+    margin-bottom: 12px;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 13px;
+    color: #12305c;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    page-break-after: avoid;
+  }
+  p { margin: 6px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0 16px 0; font-size: 12px; }
+  th, td { border: 1px solid #cfd8e3; padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #12305c; color: #fff; font-weight: 600; }
+  tr:nth-child(even) td { background: #f5f7fa; }
+  ul, ol { margin: 6px 0; padding-left: 22px; }
+  li { margin: 3px 0; }
+  .box { background: #f7f9fc; border: 1px solid #d8e0ea; border-radius: 4px; padding: 10px 14px; margin: 10px 0; }
+  .box-done { background: #eafaf0; border: 1px solid #b7e6c6; }
+  .quote { border-left: 3px solid #98a6b8; padding-left: 12px; color: #444; font-style: italic; margin: 8px 0; }
+  .small { font-size: 11px; color: #666; }
+  .section-num { color: #7a8ba0; font-weight: 400; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 3px; }
+  .tag-done { background: #dcf3e0; color: #1a7a34; }
+  code { background: #eef2f8; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+  footer { margin-top: 36px; padding-top: 10px; border-top: 1px solid #cfd8e3; font-size: 10.5px; color: #888; }
+</style>
+
+<h1>이메일 발송 MCP 기술 검토 및 연결 결과</h1>
+<div class="subtitle">큰삼촌컴퍼니 기업과제 · 작성일 2026-08-04 · 대상: 팀장</div>
+
+<h2><span class="section-num">1.</span> 결론</h2>
+<div class="box box-done">
+이메일 발송 MCP는 <b>SMTP 전용 MCP가 아니라 ESP(트랜잭션 메일 서비스) API 기반 MCP인 Resend를 채택</b>했다. 이유는 우리 스펙(G5·G6)이 요구하는 "발송 후 반복 조회 + 하드/소프트 바운스 구분"을 SMTP 프로토콜 자체로는 해결할 수 없기 때문이다. <b>MCP 연결과 테스트 발송까지 모두 완료</b>했다(2026-08-04).
+</div>
+
+<h2><span class="section-num">2.</span> 왜 이 결정이 필요했는가 — 우리 스펙의 요구사항</h2>
+<p>이메일이 걸리는 기능은 두 개이고, 요구사항이 서로 다르다.</p>
+<table>
+<tr><th style="width:14%">기능</th><th style="width:40%">필요한 동작</th><th>스펙 근거</th></tr>
+<tr><td>G5<br>(제안 메일 제작·발송)</td><td>발신 + 발신 전용 서브도메인 + 일일 발송 상한 준수 + 법정 표시 4종 삽입</td><td><code>specs/G5_제안메일제작발송.md</code></td></tr>
+<tr><td>G6<br>(발송 결과 판정)</td><td>발신 후 <b>반복적으로 재조회</b>해서 바운스 코드(하드/소프트) 확인 — 1회성이 아니라 같은 발송 건을 시간을 두고 여러 번 다시 확인</td><td><code>specs/G6_발송결과판정.md</code></td></tr>
+</table>
+<p>G6가 요구하는 "반복 조회"와 "하드/소프트 바운스 구분" 때문에, 초기에 검토했던 "이메일 MCP = SMTP MCP"라는 결론은 <b>틀렸다</b>는 것을 확인했다.</p>
+
+<h2><span class="section-num">3.</span> 왜 순수 SMTP MCP로는 부족한가</h2>
+<p>SMTP는 <b>발신 프로토콜</b>이다. "메일을 보냈다"까지만 책임지고, 그 이후 상대 서버가 수신 성공/하드 바운스/소프트 바운스 중 어떻게 처리했는지는 SMTP 자체에 조회 기능이 없다.</p>
+<p><b>실제로 바운스 정보가 오는 경로</b>: 상대 메일 서버가 실패를 감지하면 발신자 메일함으로 반송 메일(NDR, Non-Delivery Report)을 보낸다. 이걸 받으려면 SMTP와 별개로 IMAP으로 발신자 메일함을 모니터링해야 하고, NDR 형식은 메일 서버마다 제각각이라 그 안에서 "하드/소프트 바운스"를 파싱하는 로직을 직접 짜야 한다.</p>
+<p>즉 SMTP 전용 MCP + IMAP MCP를 조합해도 이 파싱 로직은 우리가 직접 구현해야 하고, G6가 요구하는 "판정 근거 = 바운스 코드 원문"의 신뢰성이 우리가 짠 파서 수준에 갇힌다.</p>
+
+<h2><span class="section-num">4.</span> 대안 비교 — SMTP 전용 MCP vs ESP API 기반 MCP</h2>
+<table>
+<tr><th></th><th>SMTP 전용 MCP</th><th>ESP API MCP (Resend)</th></tr>
+<tr><td>발신</td><td>O</td><td>O</td></tr>
+<tr><td>상태 조회</td><td>✗ (NDR을 IMAP으로 직접 파싱해야 함)</td><td><b>O — ID로 조회하면 sent/delivered/bounced 상태를 그대로 반환</b></td></tr>
+<tr><td>바운스 구분</td><td>우리가 파서를 직접 짜야 함</td><td>ESP가 이미 하드/소프트를 구분해서 내려줌</td></tr>
+<tr><td>웹훅으로 실시간 바운스 수신</td><td>✗</td><td>O</td></tr>
+<tr><td>발신 전용 서브도메인 설정</td><td>별도 설정 필요</td><td>기본 기능으로 지원(도메인 인증만 하면 됨)</td></tr>
+</table>
+<p><b>결론</b>: G5·G6 두 기능을 하나의 MCP로 커버하려면 ESP API 기반 MCP가 맞다. "더 강력해서"가 아니라 <b>G6가 명시한 "반복 조회"·"바운스 코드"를 API 호출 한 번으로 해결</b>할 수 있어서다. Resend는 발신 + ID로 상태 조회(sent/delivered/bounced) + 웹훅 바운스 추적을 지원하며, SendGrid·Mailgun도 동급 API를 제공하나 Resend가 설정 난이도·문서 측면에서 더 단순해 채택했다.</p>
+
+<h3>이 선택이 G5의 다른 요구사항도 함께 해결한다</h3>
+<ul>
+  <li><b>발송 전용 서브도메인 분리</b>(도메인 평판 보호, 회사 기존 거래 메일 보호) → ESP는 커스텀 발신 도메인 인증이 기본 기능</li>
+  <li><b>일일 발송 상한</b> 로직 → ESP API가 발신 건수·상태를 추적하므로 그 위에서 카운팅 로직을 얹기 쉬움</li>
+  <li><b>소프트 바운스 재시도</b> 로직 → ESP가 소프트/하드를 이미 구분해 리턴하므로 "재시도 후에도 실패해야 주소 오류" 판정이 바로 가능</li>
+</ul>
+
+<h3>참고 — MCP 없이 직접 구현했다면</h3>
+<p class="small">Python <code>smtplib</code>로 발신하고 <code>imaplib</code>로 발신자 메일함을 폴링하며 NDR 메일을 정규식으로 파싱해 하드/소프트 바운스를 나눴을 것이다. MCP가 이 파이프라인을 감싼 것이 아니라, ESP라는 별도 서비스가 이미 이 파싱을 표준화된 API로 대체해준 것이다 — "MCP 유무"보다 "SMTP+자체파싱 vs ESP API" 선택이 더 본질적인 기술 결정이다.</p>
+
+<h2><span class="section-num">5.</span> 비용·테스트 제약 (2026-08-03 확인)</h2>
+<p><b>결론: 지금 단계(MCP 연결·파이프라인 검증)는 100% 무료로 가능하다.</b></p>
+<table>
+<tr><th style="width:26%">항목</th><th>내용</th></tr>
+<tr><td>무료 요금제</td><td>월 3,000건 / 일 100건, 가입에 신용카드 불필요</td></tr>
+<tr><td>도메인 인증 전 제한</td><td>발신 주소는 <code>onboarding@resend.dev</code>로 고정, 가입한 본인 이메일로만 수신 가능(임의 수신자 발송 불가)</td></tr>
+<tr><td>도메인 인증 비용</td><td>무료 — DNS에 TXT/DKIM 레코드 추가만 하면 됨. 인증 후 커스텀 발신 주소·임의 수신자 발송 가능</td></tr>
+<tr><td>유료 전환 시점</td><td>월 3,000건 초과 또는 여러 도메인 필요 시 — Pro $20/월(5만 건)부터</td></tr>
+<tr><td>Rate limit</td><td>초당 2 요청(도메인 인증 후 상향 가능)</td></tr>
+</table>
+<p class="small">일본 기업 실제 주소로 발송하려면 도메인 인증(무료, DNS 설정)이 먼저 필요 — <code>docs/50</code> 1-1절의 "발송 전용 서브도메인" 요건과 이 시점에 함께 처리하면 작업이 중복되지 않는다. 무료 요금제의 일 100건 상한은 "낮은 값에서 시작해 담당자가 직접 늘려가는" 초기 발송 상한 방향과도 맞아, MVP 단계에서는 별도 컷오프 로직 없이 이 상한을 그대로 초기값으로 써도 된다.</p>
+
+<h2><span class="section-num">6.</span> MCP 연결 작업 결과</h2>
+<table>
+<tr><th style="width:26%">항목</th><th>내용</th></tr>
+<tr><td>연결 명령어</td><td><code>claude mcp add resend -e RESEND_API_KEY=*** -- npx -y resend-mcp</code></td></tr>
+<tr><td>저장 위치</td><td><code>~/.claude.json</code>(로컬 전용 설정) — 프로젝트 git 저장소 파일에는 키를 쓰지 않음. 로컬 스코프로만 저장해 커밋 경로 자체를 차단</td></tr>
+<tr><td>연결 상태</td><td><code>claude mcp list</code> 결과 <code>resend: npx -y resend-mcp - ✔ Connected</code></td></tr>
+<tr><td>연결 완료일</td><td>2026-08-04</td></tr>
+</table>
+
+<h2><span class="section-num">7.</span> 테스트 발송 결과</h2>
+<div class="box box-done">
+<p><span class="tag tag-done">완료</span> <b>2026-08-04 실제 테스트 발송 및 수신 확인 완료</b></p>
+<table>
+<tr><th style="width:26%">항목</th><th>내용</th></tr>
+<tr><td>발신 주소</td><td><code>onboarding@resend.dev</code> (도메인 인증 전 기본 발신 주소)</td></tr>
+<tr><td>수신 주소</td><td>가입한 본인 이메일 (제약 사항대로 본인 이메일로 한정)</td></tr>
+<tr><td>Email ID</td><td><code>4a13e47c-fd1b-4f6b-870a-446cb8f453fb</code></td></tr>
+<tr><td>결과</td><td>발송 성공, 수신자 받은편지함에서 수신 확인 완료</td></tr>
+</table>
+<p class="small">이 테스트로 "MCP 연결이 실제로 동작하는가"와 "G5가 요구하는 발신 자체가 되는가"가 검증됐다. 다음 단계는 발송한 Email ID로 상태 조회(sent/delivered/bounced)를 수행해, G6가 요구하는 "반복 조회"가 실제로 동작하는지 확인하는 것이다.</p>
+</div>
+
+<h2><span class="section-num">8.</span> 다음에 확정해야 할 것</h2>
+<ol>
+  <li>발송한 Email ID로 상태 조회(sent/delivered/bounced) 테스트 — G6 "반복 조회" 요구사항 실동작 검증</li>
+  <li>일본 특정전자메일법 법정 표시 의무 4종을 Resend 발신 템플릿에 고정 삽입하는 방식 확정 (<code>specs/G5</code> 제약)</li>
+  <li>바운스 상태 조회를 G6 실행체가 어떤 주기로 재조회할지(폴링 주기 vs 웹훅 수신) 결정</li>
+  <li>무응답 판정 대기 기간(현재 미확인)이 확정되면 G6 재조회 로직에 반영</li>
+  <li>도메인 인증(무료, DNS 설정) 진행 → 커스텀 발신 주소·임의 수신자 테스트로 확장</li>
+</ol>
+
+<footer>
+큰삼촌컴퍼니 기업과제 (2026 첨단산업 인재양성 부트캠프) · 본 보고서는 <code>working-notes/이메일_MCP_기술검토_260803.md</code> 및 2026-08-04 세션 내 실제 Resend MCP 연결·테스트 발송 결과를 근거로 작성됨.
+</footer>
