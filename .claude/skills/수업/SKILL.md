@@ -61,8 +61,8 @@ G2~G11 관련 Spec·기준·문서는 문제에 명시적으로 나오지 않는
 |---|---|---|
 | 시스템 프롬프트 / 프로젝트 규칙 | `CLAUDE.md` 0절(역할) · 1절(순서) · 2절(평가) · 6절(보안) · 7절(A/B 구분) | — |
 | **Spec / 성공 기준** | `CLAUDE.md` 0·1·2절, `01` 게이트 | `docs/32_하네스_스펙.md` — 6요소 + 성공 기준(확정 7 / 대기 3) |
-| **Skill** | `.claude/skills/plan-debate`, `.claude/skills/수업` | `.claude/skills/g1-기업판정` — 기준 카드의 현재 판정 문장을 그대로 실행(사전 검증 없이 최선 추정으로 착수, 2026-08-03) |
-| **Subagent / 4경계** | `.claude/agents/planner-field·frame·counterpart.md`, `project-critic.md` (도구 권한 차이로 경계 구현) | `32` 3절 — 입력 1건씩 / 출력 스키마 1행 / 공개 페이지 읽기까지 / 기업 1곳 = 컨텍스트 1단위 |
+| **Skill** | `.claude/skills/plan-debate`, `.claude/skills/수업` | `.claude/skills/g1-기업판정` — 기준 카드의 현재 판정 문장을 그대로 실행(사전 검증 없이 최선 추정으로 착수, 2026-08-03) · `.claude/skills/g7-회신처리` — 실행 단위가 둘이라 서브에이전트 2종을 순서대로 부르는 오케스트레이터 |
+| **Subagent / 4경계** | `.claude/agents/planner-field·frame·counterpart.md`, `project-critic.md` (도구 권한 차이로 경계 구현) | `.claude/agents/g7-회신해석.md`(해석 T — 발신 도구 없음) · `.claude/agents/g7-번역검증.md`(검증 V — Read만, 원문·해석 둘만 받는다). 4경계 값은 각 Spec 「제약」이 정본이고, G1은 실행 단위가 1개라 스킬 자체가 실행체다 |
 | **Workflow** | `plan-debate` 정-반-합 (체이닝 + 납득 판정 분기) | `30` ⑦ 파이프라인 10단계 + 조건 분기(제외 3종 / 보류 60일) |
 | **Hook** | **없음** — `project-critic` 호출이 건너뛸 수 있는 규칙으로만 존재 (`90` 리스크 18) | `30` ④⑥ — 90일 재수집 / 7영업일 미응답 / 14일 팔로우업 / 60일 재탐색 |
 | **Checklist** | `01`의 단계 게이트 통과 조건 | **없음** — `32` 2절 (a) 7건이 초안 |
