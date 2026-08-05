@@ -12,7 +12,27 @@
 |---|---|---|---|
 | G1 | `specs/G1_대상기업발굴.md` | `기준/G1_기업판정기준.json` | `.claude/skills/g1-기업판정/SKILL.md` |
 | G2 | `specs/G2_세그먼트화.md` | `기준/G2_세그먼트기준.md` | `.claude/skills/g2-세그먼트화/SKILL.md` |
-| G4 | `specs/G4_연락처확보.md` | `기준/G4_연락처유효성기준.md` | (미빌드) |
-| G5 | `specs/G5_제안메일제작발송.md` | (기준/G7 3절 재사용) | (미빌드) |
-| G6 | `specs/G6_발송결과판정.md` | `기준/G6_판정기준.md` | (미빌드) |
+| G4 | `specs/G4_연락처확보.md` | `기준/G4_연락처유효성기준.md` | `.claude/skills/g4-연락처확보/SKILL.md` |
+| G5 | `specs/G5_제안메일제작발송.md` | (기준/G7 3절 재사용) | `.claude/skills/g5-제안메일제작발송/SKILL.md` + `.claude/agents/g5-문안제작.md`·`g5-번역검증.md` |
+| G6 | `specs/G6_발송결과판정.md` | `기준/G6_판정기준.md` | `.claude/skills/g6-발송결과판정/SKILL.md` |
 | G7 | `specs/G7_회신해석정리.md` | `기준/G7_회신판정기준.md` | `.claude/skills/g7-회신처리/SKILL.md` + `.claude/agents/g7-회신해석.md`·`g7-번역검증.md` |
+
+**MVP 6개(G1·G2·G4·G5·G6·G7) 실행체가 2026-08-06 기준 전부 갖춰졌다 — 패키징 트리거가 도래했다.** 착수 여부·시점은 제출 범위 결정이라 이 README가 스스로 정하지 않는다(`docs/90_미결정과_리스크.md` 3절 G6 항목).
+
+**부가 기능 G8·G9·G10도 같은 날 빌드됐다(MVP 밖, 제출 범위 판단 별도)**
+
+| 기능 | Spec | 기준 카드 | 실행체 |
+|---|---|---|---|
+| G8 | `specs/G8_원인분석.md` | `기준/G8_원인분석기준.md` | `.claude/skills/g8-원인분석/SKILL.md` |
+| G9 | `specs/G9_위임브리프.md` | (기준/G4·G3 재사용) | `.claude/skills/g9-위임브리프/SKILL.md` |
+| G10 | `specs/G10_재수집판단.md` | (기준/G1 재사용) | `.claude/skills/g10-재수집판단/SKILL.md` |
+
+**G3·G11·G12도 부가 기능이라 여기 추가한다(G3·G12는 2026-08-06 누락분 등록, G11은 같은 날 신규 빌드)**
+
+| 기능 | Spec | 기준 카드 | 실행체 |
+|---|---|---|---|
+| G3 | `specs/G3_적합도평가.md` | `기준/G3_적합도기준.md` | `.claude/skills/g3-적합도평가/SKILL.md` |
+| G11 | `specs/G11_반응집계_기준조정.md` | (별도 카드 없음 — G9·G10·G12와 같은 처리. **단 값이 정해지면 카드가 생길 자리가 하나 있다** — 최소 표본 크기, `docs/90` 3절 G11 ①) | `.claude/skills/g11-반응집계/SKILL.md` |
+| G12 | `specs/G12_질의응답.md` | (별도 카드 없음 — G9·G10과 같은 처리) | `.claude/skills/g12-질의응답/SKILL.md` |
+
+**2026-08-06 — 이로써 G1~G12 전 기능의 실행체가 위 세 표에 등재됐다.** 이 README는 **원본이 어디 있는지의 색인**이고, `Harness/` 폴더 자체는 여전히 비어 있다 — **어느 기능까지 스냅샷으로 담을지는 제출 범위 결정**이라 빌드 도구가 늘리지 않는다(`docs/33_설계근거.md` D23).
