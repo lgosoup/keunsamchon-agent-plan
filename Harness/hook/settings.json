@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash hook/hook_h9_criteria_review.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
