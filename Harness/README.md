@@ -1,40 +1,39 @@
-# Harness — 제출용 패키지
+# Harness — 해외 잠재고객 탐색·제안 메일 AI 에이전트
 
-**2026-08-06 — G1~G12 전 기능 + 데모 체인 스냅샷으로 패키징했다.** 정본은 원본 위치(`specs/`·`기준/`·`.claude/`)이고, 이 폴더는 제출·시연 때 한 번에 열어 보기 위한 복사본이다. 실제 메일 발송 인프라가 없는 구간은 `demo/` 아래 파일 머리에 `데모/시뮬레이션 — 실제 발송 아님`으로 표시했다.
+일본 기업 공개 정보를 근거로 후보를 발굴하고, 특성이 비슷한 기업끼리 묶어 문안을 만들고, 사람 승인을 거쳐 발송하고, 회신을 해석해 반응을 학습에 되먹이는 12개 기능(G1~G12)의 하네스다. 이 폴더 하나로 완결된다 — 다른 어떤 파일도 참조하지 않는다.
 
-## 패키지 구성
+## 구성
 
 | 경로 | 내용 |
 |---|---|
-| `specs/` | G1~G12 Spec 스냅샷 |
-| `기준/` | 기준 카드·JSON 스냅샷 |
-| `skills/` | G1~G12 실행 스킬 스냅샷 |
-| `agents/` | `.claude/agents` 전체 스냅샷 — G5·G7 서브에이전트, 빌드/런/채점 오케스트레이터, 검토 보조 에이전트 |
-| `docs/` | 사용자 흐름·핵심문제·운영 변수 문서 |
-| `demo/` | 실제 회사 데이터 기반 데모 체인 산출물 + 상류 근거 스냅샷 |
-| `평가항목.md` | 제출 평가 기준 정본 전사본 |
+| `spec.md`(각 기능 카드) | `specs/` 아래 — 기능 12개, 각각 목표·맥락·입력·범위·제약·출력 형식·성공 기준 6요소로 확정 |
+| `skills/` | 실제 일을 하는 재사용 절차 12개(`SKILL.md`) |
+| `agents/` | 스킬을 실행하는 서브에이전트 5개 + 실행 배선을 맡는 오케스트레이터 1개(`run-orchestrator`) |
+| `criteria/` | 판정 값·임계값 카드 — 무엇을 보고 O/X를 가르는가(Spec과 짝) |
+| `data/` | 파이프라인 실행 산출물이 쌓이는 자리(패키징 시점엔 비어 있음, `data/README.md` 참조) |
+| `role-table.md` | 전체 실행체 역할·입력·출력·도구 권한 한 표 |
+| `workflow.md` | 완성 시 사람이 실제로 언제·어떻게 마주치는가(리듬 3종·정지점 2곳) |
+| `docs/` | 왜 이 구조인가(`problem-and-solution.md`), 운영 변수의 단일 출처(`deployment-assumptions.md`), 확정값의 근거(`design-rationale.md`), 합성 데이터 검증 기록(`test-validation.md`) |
 
-## 원본 위치
+## 기능 12개 — Spec · 판정 값 · 실행체
 
-| 기능 | Spec | 기준 카드 | 실행체 |
+| 기능 | Spec | 판정 값 | 실행체 |
 |---|---|---|---|
-| G1 | `specs/G1_대상기업발굴.md` | `기준/G1_기업판정기준.json` | `.claude/skills/g1-기업판정/SKILL.md` |
-| G2 | `specs/G2_세그먼트화.md` | `기준/G2_세그먼트기준.md` | `.claude/skills/g2-세그먼트화/SKILL.md` |
-| G3 | `specs/G3_적합도평가.md` | `기준/G3_적합도기준.md` | `.claude/skills/g3-적합도평가/SKILL.md` |
-| G4 | `specs/G4_연락처확보.md` | `기준/G4_연락처유효성기준.md` | `.claude/skills/g4-연락처확보/SKILL.md` |
-| G5 | `specs/G5_제안메일제작발송.md` | `기준/G7_회신판정기준.md` 3절 재사용 | `.claude/skills/g5-제안메일제작발송/SKILL.md` + `.claude/agents/g5-*`(문안·번역·승인확인) |
-| G6 | `specs/G6_발송결과판정.md` | `기준/G6_판정기준.md` | `.claude/skills/g6-발송결과판정/SKILL.md` |
-| G7 | `specs/G7_회신해석정리.md` | `기준/G7_회신판정기준.md` | `.claude/skills/g7-회신처리/SKILL.md` + `.claude/agents/g7-*` |
-| G8 | `specs/G8_원인분석.md` | `기준/G8_원인분석기준.md` | `.claude/skills/g8-원인분석/SKILL.md` |
-| G9 | `specs/G9_위임브리프.md` | `기준/G4`·`기준/G3` 재사용 | `.claude/skills/g9-위임브리프/SKILL.md` |
-| G10 | `specs/G10_재수집판단.md` | `기준/G1_기업판정기준.json` 재사용 | `.claude/skills/g10-재수집판단/SKILL.md` |
-| G11 | `specs/G11_반응집계_기준조정.md` | 별도 카드 없음 | `.claude/skills/g11-반응집계/SKILL.md` |
-| G12 | `specs/G12_질의응답.md` | 별도 카드 없음 | `.claude/skills/g12-질의응답/SKILL.md` |
+| G1 대상 기업 발굴 | `specs/g1-company-screening.md` | `criteria/g1-company-screening.json` | `skills/g1-company-screening/SKILL.md` |
+| G2 세그먼트화 | `specs/g2-segmentation.md` | `criteria/g2-segmentation.md` | `skills/g2-segmentation/SKILL.md` |
+| G3 적합도 평가(부가) | `specs/g3-fit-scoring.md` | `criteria/g3-fit-scoring.md` | `skills/g3-fit-scoring/SKILL.md` |
+| G4 연락처 확보 | `specs/g4-contact-acquisition.md` | `criteria/g4-contact-acquisition.md` | `skills/g4-contact-acquisition/SKILL.md` |
+| G5 제안 메일 제작·발송 | `specs/g5-proposal-email-dispatch.md` | `criteria/g7-reply-processing.md` 3절 재사용(번역 검증 기준 공용) | `skills/g5-proposal-email-dispatch/SKILL.md` + `agents/g5-copy-drafting.md`·`g5-translation-verification.md`·`g5-approval-check.md` |
+| G6 발송 결과 판정 | `specs/g6-delivery-status-judging.md` | `criteria/g6-delivery-status-judging.md` | `skills/g6-delivery-status-judging/SKILL.md` |
+| G7 회신 해석·정리 | `specs/g7-reply-processing.md` | `criteria/g7-reply-processing.md` | `skills/g7-reply-processing/SKILL.md` + `agents/g7-reply-interpretation.md`·`g7-translation-verification.md` |
+| G8 원인 분석(부가) | `specs/g8-cause-analysis.md` | `criteria/g8-cause-analysis.md` | `skills/g8-cause-analysis/SKILL.md` |
+| G9 사람 접촉 위임 브리프(부가) | `specs/g9-handoff-brief.md` | `criteria/g4-contact-acquisition.md`·`criteria/g3-fit-scoring.md` 재사용 | `skills/g9-handoff-brief/SKILL.md` |
+| G10 재수집 판단(부가) | `specs/g10-recollection-judging.md` | `criteria/g1-company-screening.json` 재사용 | `skills/g10-recollection-judging/SKILL.md` |
+| G11 반응 집계·기준 조정(부가) | `specs/g11-response-aggregation.md` | `criteria/g11-response-aggregation.md` | `skills/g11-response-aggregation/SKILL.md` |
+| G12 질의응답(부가) | `specs/g12-qna.md` | 별도 카드 없음(판정 문턱이 아니라 조회) | `skills/g12-qna/SKILL.md` |
 
-## 데모 체인
+**MVP는 G1·G2·G4·G5·G6·G7 6개다.** 나머지(G3·G8·G9·G10·G11·G12)는 부가 기능이며, 구조는 확정돼 있지만 일부는 발송·회신 데이터가 쌓여야 실제로 값이 채워진다(각 Spec의 "확인 후 채울 것" 참조).
 
-`demo/`에는 `ingni-store-com` 기반 시연 흐름이 들어 있다. `demo/source/`에는 이 흐름이 참조한 상류 실제 데이터(`후보목록.md`, `SEG-A-v1.md`, `ingni-store-com` 연락처·채점, G5 발송대기 파일)를 같이 넣었다.
+## 실행
 
-G1 실제 후보 판정 → G2 시험 세그먼트 → G4 실제 연락처 확보 → G5 데모 발송 기록 → G6 데모 상태 2건([회신], [무응답]) → G7 데모 회신 해석 → G8 데모 원인분석 → G9 데모 위임브리프 → G11 데모 집계까지 조인된다.
-
-주의: 실제 INGNI에 메일을 보내거나 실제 회신을 받은 것이 아니다. 이 저장소에 없는 발송·바운스·수신 인프라만 명시적으로 시뮬레이션했다.
+전체 파이프라인은 `agents/run-orchestrator.md`가 배선한다 — 조사(G1~G4)는 즉시 연쇄, 발송(G5)은 사람 승인에서 반드시 멈추는 정지점, 반응(G6~G7)은 바운스·회신 도착을 기다리는 비동기 리듬이다. 세 리듬의 정의와 사람이 실제로 멈추는 두 지점은 `workflow.md`를 본다. 개별 기능만 단독으로 부를 때는 각 `skills/*/SKILL.md`의 `/이름 인자` 형식을 그대로 쓴다.
