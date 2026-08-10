@@ -1,0 +1,4 @@
+[] RECEIVED h02 send_record=? bounce_code=?
+[] SKIP h02 — send_record 또는 bounce_code_raw 없음
+[] RECEIVED h02 send_record=? bounce_code=?
+[] SKIP h02 — send_record 또는 bounce_code_raw 없음
