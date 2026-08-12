@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}큰삼촌컴퍼니 대시보드{% endblock %}</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="brand">큰삼촌컴퍼니</div>
+    <a href="/" class="{{ 'active' if request.url.path == '/' }}">개요</a>
+    <div class="nav-group">파이프라인</div>
+    <a href="/candidates" class="{{ 'active' if request.url.path == '/candidates' }}">① 후보 목록</a>
+    <a href="/segments" class="{{ 'active' if request.url.path == '/segments' }}">② 세그먼트</a>
+    <a href="/contacts" class="{{ 'active' if request.url.path == '/contacts' }}">③ 연락처 현황 ⭐</a>
+    <a href="/approvals" class="{{ 'active' if request.url.path == '/approvals' }}">④ 승인 대기함</a>
+    <a href="/sent" class="{{ 'active' if request.url.path == '/sent' }}">⑤ 발송 현황</a>
+    <a href="/replies" class="{{ 'active' if request.url.path == '/replies' }}">⑥ 회신함</a>
+    <div class="nav-group">부가 기능</div>
+    <a href="/scores" class="{{ 'active' if request.url.path == '/scores' }}">순위표 (G3)</a>
+    <a href="/queue" class="{{ 'active' if request.url.path == '/queue' }}">처리 대기 큐 (G8·G9·G10)</a>
+    <a href="/aggregation" class="{{ 'active' if request.url.path == '/aggregation' }}">반응 집계 (G11)</a>
+    <a href="/qna" class="{{ 'active' if request.url.path == '/qna' }}">질의응답 (G12)</a>
+  </nav>
+  <main class="content">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

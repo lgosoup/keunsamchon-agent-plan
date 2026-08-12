@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}{{ path }} — 원문{% endblock %}
+{% block content %}
+<a href="javascript:history.back()" class="detail-link">&larr; 뒤로</a>
+<div class="panel markdown-body">{{ html | safe }}</div>
+{% endblock %}

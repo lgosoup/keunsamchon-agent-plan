@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}처리 대기 큐 — 큰삼촌컴퍼니 대시보드{% endblock %}
+{% block content %}
+<h1>처리 대기 큐 <span class="badge">G8·G9·G10 (부가)</span></h1>
+
+<h2>원인 분석 (G8)</h2>
+<table class="data">
+<thead><tr><th>기업</th><th>원인 가설</th><th>재시도 가치</th></tr></thead>
+<tbody>
+{% for c in data.원인분석 %}<tr><td>{{ c.id }}</td><td>{{ c.가설 }}</td><td>{{ c.재시도가치 }}</td></tr>
+{% else %}<tr><td colspan="3" class="empty">없음</td></tr>{% endfor %}
+</tbody></table>
+
+<h2>사람 위임 브리프 (G9) — 직접 연락이 필요한 기업</h2>
+<table class="data">
+<thead><tr><th>기업</th><th>유입 경로</th><th></th></tr></thead>
+<tbody>
+{% for b in data.위임브리프 %}<tr><td>{{ b.id }}</td><td>{{ b.유입경로 }}</td><td><a class="detail-link" href="/detail?path={{ b.file }}">브리프 보기</a></td></tr>
+{% else %}<tr><td colspan="3" class="empty">없음</td></tr>{% endfor %}
+</tbody></table>
+
+<h2>재수집 대상 (G10)</h2>
+<table class="data">
+<thead><tr><th>기업</th><th>유입 소스</th></tr></thead>
+<tbody>
+{% for r in data.재수집대상 %}<tr><td>{{ r.id }}</td><td>{{ r.유입소스 }}</td></tr>
+{% else %}<tr><td colspan="2" class="empty">없음</td></tr>{% endfor %}
+</tbody></table>
+{% endblock %}

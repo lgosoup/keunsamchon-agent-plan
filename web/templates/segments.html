@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}세그먼트 — 큰삼촌컴퍼니 대시보드{% endblock %}
+{% block content %}
+<h1>② 세그먼트 <span class="badge">G2</span></h1>
+{% for s in segments %}
+<div class="panel">
+  <h2>{{ s.title }} {% if s.is_trial %}<span class="badge warn">시험 실행</span>{% endif %}
+    <a class="detail-link" href="/detail?path={{ s.file }}">원문 보기</a></h2>
+  <h3>무리 정의</h3>
+  <table class="data"><thead><tr>{% for k in s.definitions[0].keys() if s.definitions %}<th>{{ k }}</th>{% endfor %}</tr></thead>
+  <tbody>{% for d in s.definitions %}<tr>{% for v in d.values() %}<td>{{ v }}</td>{% endfor %}</tr>{% endfor %}</tbody></table>
+  <h3>배정</h3>
+  <table class="data"><thead><tr>{% for k in s.assignments[0].keys() if s.assignments %}<th>{{ k }}</th>{% endfor %}</tr></thead>
+  <tbody>{% for d in s.assignments %}<tr>{% for v in d.values() %}<td>{{ v }}</td>{% endfor %}</tr>{% endfor %}</tbody></table>
+  <h3>미분류</h3>
+  <table class="data"><thead><tr>{% for k in s.unassigned[0].keys() if s.unassigned %}<th>{{ k }}</th>{% endfor %}</tr></thead>
+  <tbody>{% for d in s.unassigned %}<tr>{% for v in d.values() %}<td>{{ v }}</td>{% endfor %}</tr>{% endfor %}</tbody></table>
+</div>
+{% else %}
+<p class="empty">세그먼트가 아직 없습니다.</p>
+{% endfor %}
+{% endblock %}

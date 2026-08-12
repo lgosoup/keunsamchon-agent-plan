@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}연락처 현황 — 큰삼촌컴퍼니 대시보드{% endblock %}
+{% block content %}
+<h1>③ 연락처 현황 <span class="badge">G4</span> <span class="badge star">기업이 직접 요구한 화면</span></h1>
+<p class="sub">"담당자 컨택포인트까지 확보하는 대시보드" — 기업 설명회 발언 원문(<code>13S F22</code>)</p>
+<table class="data">
+<thead><tr><th>기업 식별자</th><th>상태</th><th>등급</th><th>연락처 값</th><th></th></tr></thead>
+<tbody>
+{% for c in items %}
+<tr class="{{ 'ok' if c.상태 == '확보' else 'warn' }}">
+  <td>{{ c.id }}</td>
+  <td><span class="pill">{{ c.상태 }}</span></td>
+  <td>{{ c.등급 or '—' }}</td>
+  <td><code>{{ c.연락처값 or '—' }}</code></td>
+  <td><a class="detail-link" href="/detail?path={{ c.file }}">상세</a></td>
+</tr>
+{% else %}
+<tr><td colspan="5" class="empty">연락처 데이터가 없습니다.</td></tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

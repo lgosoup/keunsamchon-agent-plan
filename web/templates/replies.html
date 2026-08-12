@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}회신함 — 큰삼촌컴퍼니 대시보드{% endblock %}
+{% block content %}
+<h1>⑥ 회신함 <span class="badge">G7</span></h1>
+<p class="sub">회신 이후(미팅·견적·계약)는 사람이 직접 처리합니다 — 이 화면은 "어떤 회신인지 쉽게 아는 것"까지만 합니다(리스크 21 결정).</p>
+{% for r in items %}
+<div class="panel">
+  <h2>{{ r.title }} <span class="badge">{{ r.분류 or '미분류' }}</span></h2>
+  <div class="meta">수신일시: {{ r.수신일시 }}</div>
+  <div class="mail-preview">{{ r.요지 }}</div>
+  {% if r.요구 %}<div class="ask">요구·기한: {{ r.요구 }}</div>{% endif %}
+  <a class="detail-link" href="/detail?path={{ r.file }}">원문 전체 보기</a>
+</div>
+{% else %}
+<p class="empty">회신이 없습니다.</p>
+{% endfor %}
+{% endblock %}

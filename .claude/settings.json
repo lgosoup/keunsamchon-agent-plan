@@ -1,0 +1,19 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/hook_h9_criteria_review.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/hook_h12_approval_send_gate.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

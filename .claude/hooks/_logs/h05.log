@@ -1,0 +1,31 @@
+[2026-08-11T17:01:41Z] RECEIVED h05 신규후보=24건
+[2026-08-11T17:01:41Z] DISPATCHED h05 -> /g1-기업판정 ラディアンヌ 楽天市場店
+방금 붙여주신 내용을 보니 두 부분이 섞여 있는 것 같습니다.
+
+1. 첫 줄 `C:\일본 라쿠텐 입점 매장 "Dark Angel（ダークエンジェ�You've hit your individual spend limit · run /usage-credits to ask your admin for a higher limit
+��ドミー）`(라쿠텐 입점 스토어) 판정을 시도했으나, 주어진 URL `https://www.rakuten.co.jp/antelp/` 접속이 2회 모두 실패했습니다(1차 타임아웃, 2차 HTTP 403 Forbidden). Spec의 실패 처리 규칙("항목을 관찰할 수 없다 → 그 기업을 종료한다, 다른 경로를 스스로 찾지 않는다")에 따라 관찰을 강행하거나 다른 URL을 검색해 대체하지 않고, **판정 불가**로 종료했습니다.
+
+`specs/candidates/후보목록.md`에 `## rakuten-co-jp-antelp` 섹션을 추가했습니다 — O1(기업명·URL)만 채우고 나머지 관찰 항목(O2~O6·O8)은 전부 `?`+사유("사이트가 열리지 않는다"), O9에 접속 실패 경위를 기록했습니다. 재수집 대상으로 표시했으니, 이후 이 회사의 실제 자사 도메인이나 다른 공개 페이지 URL을 알게 되면 다시 돌려주세요.
+��.
+- **식별자 표기 이슈 발견**: 입력 URL이 자사 도메인이 아니라 마켓플레이스 입점 경로라, 도메인만 쓰면 다른 입점 매장과 식별자가 충돌합니다. 이번엔 도메인+매장경로(`www-rakuten-co-jp-darkangel`)로 구분해 처리했고, 반복되면 기준 카드에 규칙으로 올릴지 판단이 필요하다고 남겨뒀습니다.
+
+재시도하려면 사람이 직접 브라우저로 열람해 관찰하는 경로가 더 유력해 보입니다.
+�비스가 필요한 중소 패션 브랜드가 아니며, 판정 기준 카드에도 "운영 주체가 실제 독립 기업인가"를 가르는 항목이 없습니다 — 없는 규칙을 제가 즉석에서 만들어 O/X를 매기지 않는 게 이 스킬의 원칙이라 여기서 멈춥니다.
+
+두 가지 중 어느 쪽으로 진행할까요?
+1. 이 건은 **판정 불가**로 후보목록에 짧게 기록하고 종료 (사유: 독립 법인 실체 없음 + 사이트 접속 차단)
+2. 사용자가 원래 의도한 것이 라쿠텐 몰에 입점한 **다른 개별 브랜드**라면, 그 브랜드의 자사 URL(또는 정확한 회사명)을 알려주시면 그걸로 다시 조사
+[2026-08-11T17:05:44Z] RECEIVED h05 신규후보=19건
+[2026-08-11T17:05:44Z] DISPATCHED h05 -> /g1-기업판정 Lino Ulu
+Lino Ulu(`https://www.rakuten.co.jp/linoulu/`) 판정을 완료했습�BAMBI WATER(라쿠텐 입점점, `https://www.rakuten.co.jp/bambi-water/`) 판정을 완료해 `specs/candidates/후보목록.md`에 `www-rakuten-co-jp-bambi-water` 섹션으로 You've hit your individual spend limit · run /usage-credits to ask your admin for a higher limit
+사개요·검색으로 찾은 카테고리 상세)를 시도했지만 전부 HTTP 403 또는 WAF 참조번호만 반환해`View Master`(https://www.rakuten.co.jp/viewmaster/) G1 판정을 실행했고, `specs/candidates/후보목록.md`에 `www-rakuten-co-jp-viewmaster` 섹션으로 추가했습니다.
+
+**결과: 판정 불가** — 홈페이지·회사개요(info.html)·상품목록(item.rakuten.co.jp) 3개 URL 모두 HTTP 403 또는 봇 차단 페이지로 막혀 관찰 항목(O2~O6, O8)을You've hit your individual spend limit · run /usage-credits to ask your admin for a higher limit
+로 넘기지 않는다")에 따라 제외가 아닌 판정 불가로 종료했습니다.
+
+한 가지 짚어드릴 점: 오늘 같은 방식(WebFetch로 rakuten.co.jp 매장 URL 판정)이 이미 **18건 연속**으로 같은 결과(403/차단)를 내고 있습니다. 개별 매장의 우연한 차단이 아니라 **WebFetch가 rakuten.co.jp 도메인 자체에 구조적으로 접근 못하는 것**으로 보입니다. 이 패턴을 `docs/11_대안탐색_비교.md`(데이터 소스 재검토タマチャンショップ(kyunan) 판정을 `specs/candidates/후보목록.md`에 `www-rakuten-co-jp-kyunan` 섹션으로 추가했습니다.
+
+**결과: 판정 불가** — 홈페이지·회사개요·카테고리 목록 3개 URL 모두 접속 실패(타임아웃 1회·HTTP 403 1회·WAF 차단 페이지 1회)로 관찰 항목 전부(O2~O6, O8) `?` 처리했습니다. 검색 스니펫으로 운영법인(有限会社九南サービス, 미야자키현)과 자연식품 취급이 시사됐지만, "본 페이지에서 직접 본 것"만 근거로 삼는 제약상 판정에는 반영하지 않았습니다.
+
+한 가지 짚어둘 점: 이 파일에는 오늘(2026-08-12) 라쿠텐 입점 매장 URL로 실행한 건이 이미 12건 더 있고, **전부 같은 이유(rakuten.co.jp 도메인 자체가 WebFetch를 차단)로 판정 불가**였습니다. 이번 건까지 13건 연속입니다. 라쿠텐 입점 매장 URL을 이 스킬(WebFetch 기반)에 계속 넣는 방식으로는 관찰이 구조적으로 불가능해 보입니다 — `docs/93_구현_검증대기.md`에 이 한계를 등록할지, 아니면 라쿠텐 매장은 다른 수집 경로(사람 열람 등)로 돌릴지 판단이 필요하시면 말씀해 주세요.
+��로 append하면 쓰기 충돌이 난다"고 명시한 바로 그 상황이 실제로 벌어지고 있는 것으로 보입니다. 지금은 재시도로 제 항목은 정상 반영됐지만, `next-tr-store` 섹션이 파일에 최소 3번 중복돼 있는 등 실제 중복이 쌓이고 있어 — 누가 병렬로 여러 G1을 돌리고 있는지, 그리고 이 중복을 정리할지는 확인이 필요해 보입니다.

@@ -1,0 +1,20 @@
+[2026-08-12T15:09:53Z] RECEIVED h08 date=(오늘)
+[2026-08-12T15:09:53Z] DISPATCHED h08 -> /g11-반응집계
+That looks like a stray or incomplete paste — `C:/Program Files/Git/g11-반응집계` combines a Git installation path with the G11 skill name, but it's not clear what you want done with it.
+
+Could you clarify what you're trying to do? For example:
+- Run the `g11-반응집계` skill (반응 집계·기준 조정)?
+- Something related to a Git path or file at that location?
+[2026-08-12T15:20:51Z] RECEIVED h08 date=(오늘)
+[2026-08-12T15:20:51Z] DISPATCHED h08 -> /g11-반응집계
+`specs/집계/2026-08-13.md`를 만들었다. 요약:
+
+**1절 집계표** — 2026-08-11 집계와 값이 동일하다(그 사이 실제 신규 발송이 없었다). S1×가격효율 소구(5건, 회신율 60%)만 표본 기준(5건)을 채우고, S1×디자인속도 소구(2건)는 여전히 표본 부족.
+
+**새로 생긴 것 둘**, 둘 다 1절 표는 못 바꾼다:
+- `합성테스트-h2bounce-01`(H2 바운스 감지 Hook 검증용, 그 파일 자체가 "검증 후 삭제한다"고 밝힘) — G2 세그먼트에 배정된 적이 없어 조인 불가로 별도 집계만 하고 표에는 안 넣었다. **이 파일이 정말 검증이 끝났다면 정리 대상인지 확인이 필요하다** — G11은 읽기만 하므로 판단은 넘긴다.
+- G8 원인분석 3건(05·06·07)이 처음 생겼지만 Spec이 이걸 1절 칸으로 지정하지 않아 2절 참고로만 인용했다.
+
+**2절 조정 제안** — 제안 1(가격효율 소구 축을 G3 검토 후보로)은 2026-08-11 집계에서 사람이 "반영 보류"(전부 합성 데이터라서)로 판정한 이력이 있고, 그 판정을 뒤집을 새 실데이터가 이번에도 안 들어와서 이력을 표시한 채 다시 냈다 — 재확정은 사람 몫으로 남겼다.
+
+다음에 실제 발송이 시작되면 이 값들이 전부 바뀐다.

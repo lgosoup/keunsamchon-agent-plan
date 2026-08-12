@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}후보 목록 — 큰삼촌컴퍼니 대시보드{% endblock %}
+{% block content %}
+<h1>① 후보 목록 <span class="badge">G1</span></h1>
+<p class="sub">읽기 전용. 출처: <code>candidates/후보목록.md</code></p>
+<table class="data">
+<thead><tr><th>기업 식별자</th><th>업종</th><th>후보 판정</th><th>상품 개수</th><th>채널 수</th></tr></thead>
+<tbody>
+{% for c in items %}
+<tr class="{{ 'ok' if c.판정 == '포함' else 'warn' }}">
+  <td>{{ c.id }}</td><td>{{ c.업종 or '—' }}</td><td>{{ c.판정 or '—' }}</td>
+  <td>{{ c.상품개수 or '—' }}</td><td>{{ c.채널수 or '—' }}</td>
+</tr>
+{% else %}
+<tr><td colspan="5" class="empty">후보가 없습니다.</td></tr>
+{% endfor %}
+</tbody>
+</table>
+
+<h2>연락처를 못 찾아 보류된 기업 <span class="badge">보류목록</span></h2>
+<table class="data">
+<thead><tr><th>날짜</th><th>기업 식별자</th><th>어느 기능</th><th>상태</th><th>사유</th></tr></thead>
+<tbody>
+{% for h in holdlist %}
+<tr><td>{{ h.날짜 }}</td><td>{{ h['기업 식별자'] }}</td><td>{{ h['어느 기능'] }}</td><td>{{ h.상태 }}</td><td>{{ h['사유(간단히)'] }}</td></tr>
+{% else %}
+<tr><td colspan="5" class="empty">보류된 건이 없습니다.</td></tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

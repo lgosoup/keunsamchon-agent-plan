@@ -1,0 +1,2 @@
+[2026-08-12-211228] dispatch mode=real file=발송대기/S1-2026-08-12.md
+  -> spawned: claude -p /g5-제안메일제작발송 발송 발송대기/S1-2026-08-12.md

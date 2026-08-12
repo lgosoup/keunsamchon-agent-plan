@@ -1,0 +1,12 @@
+[2026-08-11T12:50:38Z] OBSERVED h12 file=C:\Users\A\공부\큰삼촌\specs\발송대기\S1-2026-08-11.md tool=Write
+[2026-08-12T09:00:15Z] OBSERVED h12 file=C:\Users\A\공부\큰삼촌\specs\발송대기\S1-2026-08-12.md tool=Write
+[2026-08-12T09:48:34Z] OBSERVED h12 file=C:\Users\A\공부\큰삼촌\specs\발송대기\S1-2026-08-12.md tool=Edit
+[2026-08-12T09:54:26Z] OBSERVED h12 file=C:\Users\A\공부\큰삼촌\specs\발송대기\S1-2026-08-12.md tool=Edit
+[2026-08-12T10:21:07Z] OBSERVED h12 file=C:\Users\A\공부\큰삼촌\specs\발송대기\S1-2026-08-12.md tool=Edit
+[2026-08-12T10:21:31Z] OBSERVED h12 file=C:\Users\A\공부\큰삼촌\specs\발송대기\S1-2026-08-12.md tool=Edit
+[2026-08-12T10:21:55Z] OBSERVED h12 file=C:\Users\A\공부\큰삼촌\specs\발송대기\S1-2026-08-12.md tool=Edit
+[2026-08-12T12:14:07Z] OBSERVED h12 file=C:\Users\A\공부\큰삼촌\specs\발송대기\S1-2026-08-12.md tool=Edit
+[2026-08-12T12:14:07Z] APPROVAL DETECTED h12 file=C:\Users\A\공부\큰삼촌\specs\발송대기\S1-2026-08-12.md
+[2026-08-12T12:14:07Z] DISPATCHED h12 -> /g5-제안메일제작발송 발송 C:\Users\A\공부\큰삼촌\specs\발송대기\S1-2026-08-12.md
+[2026-08-12T14:40:29Z] OBSERVED h12 file=C:\Users\A\공부\큰삼촌-iceman231-wip\specs\발송대기\테스트-2026-08-12.md tool=Write
+[2026-08-12T15:47:00Z] OBSERVED h12 file=C:\Users\A\공부\큰삼촌\specs\발송대기\S2-2026-08-13.md tool=Write

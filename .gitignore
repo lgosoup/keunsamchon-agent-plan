@@ -27,10 +27,10 @@ desktop.ini
 *.tmp
 *.bak
 ~$*
+.playwright-mcp/
 
 # --- 타인 저작물 (public 저장소에 올리지 않는다) ---
 # 수업 교육 콘텐츠의 지식재산권은 교육 운영 주체에 있고 복제·공개가 금지돼 있다.
-# 개념을 우리 말로 재서술한 docs/수업/00_개념정리.md만 공개 대상이다 (CLAUDE.md 6절).
 *mission_answer_sheet.pdf
 *mission_answer*.pdf
 *mission_answer_sheet.zip

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}반응 집계 — 큰삼촌컴퍼니 대시보드{% endblock %}
+{% block content %}
+<h1>반응 집계·기준 조정 <span class="badge">G11 (부가)</span></h1>
+{% for a in items %}
+<div class="panel">
+  <h2>{{ a.file }}</h2>
+  <table class="data">
+  <thead><tr>{% for k in a.table[0].keys() if a.table %}<th>{{ k }}</th>{% endfor %}</tr></thead>
+  <tbody>{% for row in a.table %}<tr>{% for v in row.values() %}<td>{{ v }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table>
+  <h3>조정 제안</h3>
+  <div class="mail-preview">{{ a.proposals }}</div>
+</div>
+{% else %}
+<p class="empty">아직 집계 회차가 없습니다.</p>
+{% endfor %}
+{% endblock %}

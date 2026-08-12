@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}발송 현황 — 큰삼촌컴퍼니 대시보드{% endblock %}
+{% block content %}
+<h1>⑤ 발송 현황 <span class="badge">G5·G6</span></h1>
+<table class="data">
+<thead><tr><th>기업 식별자</th><th>수신 주소</th><th>발송일시</th><th>제목</th><th>상태</th></tr></thead>
+<tbody>
+{% for s in items %}
+<tr class="{{ {'회신':'ok','무응답':'warn','주소 오류':'bad'}.get(s.상태, '') }}">
+  <td>{{ s.id }}</td><td>{{ s.수신주소 }}</td><td>{{ s.발송일시 }}</td><td>{{ s.제목 }}</td>
+  <td><span class="pill">{{ s.상태 }}</span></td>
+</tr>
+{% else %}
+<tr><td colspan="5" class="empty">발송된 건이 없습니다. (실제 파이프라인은 아직 0건 — docs/93 참조)</td></tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

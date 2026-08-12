@@ -18,7 +18,9 @@ file_path=$(echo "$input" | jq -r '.tool_input.file_path // empty')
 if [[ "$tool_name" != "Edit" && "$tool_name" != "Write" && "$tool_name" != "MultiEdit" ]]; then
   exit 0
 fi
-if [[ "$file_path" != *"/criteria/"* ]]; then
+# 2026-08-11 라이브 실동작 테스트로 발견 — Windows에서 file_path는 백슬래시
+# 경로로 온다. 슬래시만 보면 Windows에서 아예 안 걸린다.
+if [[ "$file_path" != *"/criteria/"* && "$file_path" != *"\\criteria\\"* ]]; then
   exit 0
 fi
 

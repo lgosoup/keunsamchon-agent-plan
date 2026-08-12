@@ -7,6 +7,10 @@
           {
             "type": "command",
             "command": "bash hook/hook_h9_criteria_review.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash hook/hook_h12_approval_send_gate.sh"
           }
         ]
       }

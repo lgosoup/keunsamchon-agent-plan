@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}순위표 — 큰삼촌컴퍼니 대시보드{% endblock %}
+{% block content %}
+<h1>순위표 <span class="badge">G3 (부가)</span></h1>
+<table class="data">
+<thead><tr>{% for k in data.ranking[0].keys() if data.ranking %}<th>{{ k }}</th>{% endfor %}</tr></thead>
+<tbody>
+{% for row in data.ranking %}
+<tr>{% for v in row.values() %}<td>{{ v }}</td>{% endfor %}</tr>
+{% else %}
+<tr><td class="empty">순위표가 아직 없습니다.</td></tr>
+{% endfor %}
+</tbody>
+</table>
+<h2>기업별 채점 파일</h2>
+<ul class="file-list">
+{% for f in data.individual_files %}<li><a class="detail-link" href="/detail?path={{ f }}">{{ f }}</a></li>{% endfor %}
+</ul>
+{% endblock %}

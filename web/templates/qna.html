@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}질의응답 — 큰삼촌컴퍼니 대시보드{% endblock %}
+{% block content %}
+<h1>질의응답 <span class="badge">G12</span></h1>
+<p class="sub">G1~G11 산출물을 읽기 전용으로 조회해 답합니다. 실행·수정 권한 없음.</p>
+<div class="chat-box">
+  <div id="chat-log"></div>
+  <form id="chat-form">
+    <input type="text" id="chat-input" placeholder="예: 후보 순위 어떻게 돼" autocomplete="off">
+    <button type="submit" class="btn">질문</button>
+  </form>
+</div>
+
+<h2>지난 질의응답 로그</h2>
+{% for l in logs %}
+<div class="panel">{{ l.html | safe }}</div>
+{% else %}
+<p class="empty">로그가 없습니다.</p>
+{% endfor %}
+{% endblock %}
