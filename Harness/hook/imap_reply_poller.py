@@ -52,6 +52,18 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 STAGING_DIR = REPO_ROOT / "specs" / "_수신함"
 SENT_DIR = REPO_ROOT / "specs" / "발송기록"
+REPLIES_DIR = REPO_ROOT / "specs" / "replies"
+
+
+def _reply_record_exists(received_at: str) -> bool:
+    """이 회신이 실제로 끝까지 처리됐는가 — G7 레코드 유무로만 판정한다.
+
+    예전엔 "스테이징 파일이 있는가"로 판정했는데, 스테이징은 디스패치
+    성공·실패와 무관하게 항상 먼저 생겨서, 디스패치가 중간에 실패해도
+    스테이징 파일은 남아 **다음 회차부터 영원히 건너뛰어졌다**(2026-08-14,
+    노트북 절전모드로 인한 API 연결 끊김이 실제로 이 상태를 만들었다).
+    레코드 존재만이 "끝까지 됐다"는 진짜 증거다."""
+    return any(REPLIES_DIR.glob(f"{received_at}-*.md"))
 
 
 def _load_dotenv() -> None:
@@ -314,12 +326,20 @@ def _stage(payload: dict) -> Path:
 
 
 def _dispatch_g7(payload: dict) -> bool:
-    """G7을 무인으로 호출한다.
+    """G7을 무인으로 호출하고, **레코드가 실제로 생긴 것을 확인한 뒤에만** 성공을 돌려준다.
 
     `--watch`로 돌 때 이 호출이 사람 승인을 요구하면 자동 연쇄가 거기서 멈춘다 —
     그래서 권한 모드를 붙인다. **발송 권한과는 무관하다**: G7은 회신을 읽고
     레코드를 쓸 뿐이고 발신 도구 권한이 없다(`specs/G7` 실행체 경계). 발송은
-    여전히 사람 승인(U2)을 거치는 G5의 일이다."""
+    여전히 사람 승인(U2)을 거치는 G5의 일이다.
+
+    **2026-08-14 정정 — 예전엔 `Popen`으로 프로세스를 띄우기만 하면 성공으로
+    쳤다.** 노트북 절전모드로 API 연결이 중간에 끊겨 G7이 미완료로 죽었는데도
+    "성공"으로 보고돼 곧바로 읽음 처리됐고, 그 회신은 영원히 재시도되지 않았다
+    (`_reply_record_exists`가 막던 재도전 경로 자체가 없었다). 지금은
+    `subprocess.run`으로 **끝날 때까지 기다리고**, 그러고도 레코드 파일이
+    실제로 생겼는지까지 확인한다 — exit code 0이 곧 "레코드가 생겼다"의
+    보장은 아니기 때문이다(LLM 세션은 중간에 끊겨도 0으로 끝날 수 있다)."""
     skill = os.environ.get("G7_SKILL", "/g7-회신처리")
     args = payload["mail_raw"]
     if payload["matched_send_record"]:
@@ -346,12 +366,27 @@ def _dispatch_g7(payload: dict) -> bool:
     mode = os.environ.get("G7_PERMISSION_MODE", "acceptEdits")
     if mode:
         cmd[1:1] = ["--permission-mode", mode]
+    # G7은 실측상 ~5분(재번역 1회까지 겹치면 더 걸린다) — 넉넉히 잡되 무한 대기는 안 한다.
+    timeout = int(os.environ.get("G7_TIMEOUT", "900"))
     try:
-        subprocess.Popen(cmd, cwd=str(REPO_ROOT))
-        return True
+        result = subprocess.run(
+            cmd, cwd=str(REPO_ROOT), timeout=timeout,
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
+        )
+    except subprocess.TimeoutExpired:
+        _log(f"  -> FAILED: G7 처리 시간 초과({timeout}초) — 읽음 처리 보류, 재시도 대상으로 남긴다")
+        return False
     except Exception as e:  # noqa: BLE001
         _log(f"  -> FAILED to dispatch: {e}")
         return False
+
+    if _reply_record_exists(payload["received_at"]):
+        return True
+
+    tail = (result.stderr or result.stdout or "").strip()[-500:]
+    _log(f"  -> FAILED: G7 프로세스는 끝났지만(exit={result.returncode}) 회신 레코드가 안 생겼다"
+         f" — 읽음 처리 보류, 재시도 대상으로 남긴다. 마지막 출력: {tail}")
+    return False
 
 
 def _run_once(args) -> int:
@@ -421,10 +456,10 @@ def _run_once(args) -> int:
                 skipped += 1
                 continue
 
-            # 이미 처리한 회신인가 — watch 루프가 같은 메일을 반복 투입하면
-            # G7 레코드가 중복 생성된다(읽음 표시만으로는 --all 모드에서 못 막는다).
-            staged_name = f"{payload['received_at']}-{_safe_name(payload['from'])}.json"
-            if (STAGING_DIR / staged_name).exists():
+            # 이미 **끝까지** 처리한 회신인가 — 레코드 존재로만 판정한다(스테이징
+            # 파일 존재로 판정하면, 디스패치가 실패해도 스테이징은 이미 있어서
+            # 다음 회차부터 영원히 건너뛰어진다 — 2026-08-14 실물로 겪은 문제).
+            if _reply_record_exists(payload["received_at"]):
                 skipped += 1
                 continue
 
@@ -433,10 +468,20 @@ def _run_once(args) -> int:
             _log(f"     subject={payload['subject']}")
             _log(f"     저장: {staged.relative_to(REPO_ROOT).as_posix()}")
 
-            if args.dispatch and _dispatch_g7(payload):
-                _log("     DISPATCHED -> " + os.environ.get("G7_SKILL", "/g7-회신처리"))
+            # --dispatch가 없으면(감지만 하는 기본 모드) 바로 읽음 처리해도 된다 —
+            # 뒤에서 기다릴 처리 자체가 없다. --dispatch가 있으면 **레코드가 실제로
+            # 생긴 것을 확인한 경우에만** 읽음 처리한다 — 그래야 중간에 끊겨도
+            # 다음 감시 주기(또는 재실행)에 같은 메일이 다시 잡혀 자동 재시도된다.
+            dispatched_ok = True
+            if args.dispatch:
+                _write_heartbeat(args, f"회신 처리 중 — {payload['from']} (최대 {os.environ.get('G7_TIMEOUT', '900')}초 대기)")
+                dispatched_ok = _dispatch_g7(payload)
+                if dispatched_ok:
+                    _log("     DISPATCHED -> " + os.environ.get("G7_SKILL", "/g7-회신처리") + " (레코드 생성 확인됨)")
+                else:
+                    _log("     DISPATCH 실패 또는 레코드 미생성 — 읽음 처리 보류, 자동 재시도 대상으로 남음")
 
-            if not args.keep_unread and not args.all:
+            if dispatched_ok and not args.keep_unread and not args.all:
                 conn.store(num, "+FLAGS", "\\Seen")
             processed += 1
 

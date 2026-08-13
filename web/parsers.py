@@ -265,7 +265,11 @@ def parse_replies():
             _first(r"\*\*회신\s*성격\*\*:\s*\*\*([^*]+)\*\*", raw)  # 목록형
             or _first(r"###\s*회신\s*성격\s*\n+\*\*([^*\n]+)\*\*", raw)  # 표+헤딩형
         )
-        summary = _first(r"\*\*요지\*\*:\s*([^\n]+)", raw)
+        summary = _first(r"\*\*요지\*\*:\s*([^\n]+)", raw)  # 목록형
+        if not summary:
+            m = re.search(r"###\s*요지[^\n]*\n((?:\d+\.\s*[^\n]+\n?)+)", raw)  # 표+헤딩형(번호 목록)
+            if m:
+                summary = " ".join(re.findall(r"\d+\.\s*([^\n]+)", m.group(1)))
         ask = _first(r"\*\*상대의 요구·기한\*\*:\s*([^\n]+)", raw)
         out.append({
             "file": rel, "id": cid, "title": title, "수신일시": received_at,
