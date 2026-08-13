@@ -2,9 +2,10 @@
 정확한 전체 내용은 항상 원문(raw)을 함께 돌려줘 상세 화면에서 렌더링한다 —
 모든 뉘앙스를 스키마화하지 않는다(docs/35 6절 "가볍게 간다")."""
 import re
+from datetime import date, datetime
 from markdown_it import MarkdownIt
 
-from data_source import read_text, list_md_files
+from data_source import read_text, list_md_files, data_root
 
 # commonmark 프리셋엔 표(GFM table)가 없다 — 원문 상세 화면에 표가 아주 많아(승인란 등)
 # gfm-like로 켜되, linkify-it이 없어 linkify 규칙만 끈다.
@@ -52,16 +53,24 @@ def parse_candidates():
     items = []
     for sec in sections:
         lines = sec.splitlines()
-        cid = lines[0].strip()
+        # 헤딩이 "## {id}"뿐 아니라 "## {id} (2026-08-12 신규 실행)"처럼 주석이
+        # 붙은 경우가 46건 중 43건이다(2026-08-13 실물 대조) — 뒤 " (" 이후를
+        # 잘라야 진짜 식별자다. 안 자르면 contacts/segments와 id로 조인할 때
+        # 대부분 매치가 안 된다(leadtime 계산이 3건만 잡히던 원인이 이것이었다).
+        cid = lines[0].strip().split(" (")[0].strip()
         if not cid or cid.startswith("---"):
             continue
-        industry = _first(r"\*\*O5\*\*\s*업종:\s*\*\*([^*]+)\*\*", sec)
         verdict = _first(r"\*\*후보\s*판정:\s*([^*]+)\*\*", sec)
+        if not verdict:
+            continue  # "## 종합 — ..." 요약 섹션 등 실제 후보가 아닌 절 — 2026-08-13 발견
+            # (실물 파일에 재판정 종합 섹션이 끼어 있어 총 조사 건수가 실제보다 2건 많게 셌었다)
+        industry = _first(r"\*\*O5\*\*\s*업종:\s*\*\*([^*]+)\*\*", sec)
         items_count = _first(r"상품\s*개수:\s*([0-9?]+)", sec)
         channel_count = _first(r"판매채널\s*수:\s*([0-9?]+)", sec)
+        collected_at = _first(r"수집일:\s*(\d{4}-\d{2}-\d{2})", sec)
         items.append({
             "id": cid, "업종": industry, "판정": verdict,
-            "상품개수": items_count, "채널수": channel_count,
+            "상품개수": items_count, "채널수": channel_count, "수집일": collected_at,
         })
     return items
 
@@ -97,14 +106,30 @@ def parse_segments():
 # ---------- G4 연락처 ----------
 
 def parse_contacts():
+    """세 필드 모두 두 표기 관례를 다 받는다 — `web/test-fixtures`(초기 관례: "# {id} — ...",
+    볼드 상태·표 형식)와 `g4-연락처확보` 실제 산출(2026-08-13 실물 22건 대조로 드러남: "# 연락처
+    확보 — {id}", 볼드 없는 상태, 목록 형식 등급·값)이 서로 달라 기존 정규식은 실물 22건 중
+    20건에서 id·등급·연락처값을 전부 놓치고 있었다(`_split_approval_items`·`parse_aggregation`이
+    이미 같은 이유로 두 관례를 다 받고 있는 것과 같은 패턴)."""
     files = list_md_files("contacts")
     out = []
     for rel in files:
         raw = read_text(rel)
-        cid = _first(r"^#\s*([^\s—]+)", raw)
-        status = _first(r"##\s*상태:\s*\*\*\[([^\]]+)\]\*\*", raw, "미상")
-        value = _first(r"\*\*연락처\s*값\*\*\s*\|\s*`([^`]+)`", raw)
-        grade = _first(r"\*\*유효\s*등급\*\*\s*\|\s*\*\*([^*]+)\*\*", raw)
+        # 파일명·헤딩을 쪼개 추측하지 않는다 — 본문의 「기업 식별자」로 조인한다
+        # (`_sent_company_ids`와 같은 원칙). 헤딩 관례가 "# {id} — ..."/"# ... — {id}"로
+        # 갈려 헤딩 파싱으로는 어느 쪽이든 절반은 틀린다.
+        cid = _first(r"\*\*기업\s*식별자\*\*[:：]\s*([^\n]+)", raw).strip()
+        status = _first(r"##\s*상태:\s*\**\[([^\]]+)\]\**", raw, "미상")
+        value = (
+            _first(r"\*\*연락처\s*값\*\*\s*\|\s*`([^`]+)`", raw)  # 표 형식(초기 관례)
+            or _first(r"\*\*연락처\s*값\*\*[:：]\s*([^\n]+)", raw)  # 목록 형식(실제 산출)
+        )
+        value = _strip_md(value).strip()
+        grade_line = (
+            _first(r"\*\*유효\s*등급\*\*[:：]\s*([^\n]+)", raw)  # 목록 형식(실제 산출) — 먼저 시도
+            or _first(r"\*\*유효\s*등급\*\*\s*\|\s*([^\|]+)\|", raw)  # 표 형식(초기 관례)
+        )
+        grade = _strip_md(grade_line).split("—")[0].strip()
         out.append({"id": cid, "file": rel, "상태": status, "연락처값": value, "등급": grade})
     return out
 
@@ -212,21 +237,112 @@ def parse_sent():
 
 # ---------- G7 회신함 ----------
 
+_REPLY_FILENAME_RE = re.compile(r"^\d{4}-\d{2}-\d{2}-\d{6}-(.+)\.md$")
+
+
 def parse_replies():
-    files = list_md_files("replies")
+    """실물 회신 5건을 보면 표기가 두 갈래다 — 목록형("- **수신일시**: ...", G11
+    합성 데모용)과 표+헤딩형("| 수신일시 | ... |" + "### 회신 성격\n**C1 — ...**",
+    실제 발송·회신 흐름으로 만들어진 시연건). 둘 다 받는다(2026-08-13 실물 대조).
+    기업 식별자는 본문에 전용 필드가 없어 **레코드 파일명 규칙**({수신일시}-{식별자}.md,
+    Spec 정본)으로 뽑는다 — 헤딩 관례도 두 갈래(id 먼저/나중)라 헤딩 파싱은 못 믿는다."""
+    # G7은 번역 검증용 추출본을 `replies/_검증입력/`에도 남긴다(감사 기록).
+    # 그건 완성 레코드가 아니라 중간 산출물이라 회신함에 섞이면 안 된다 —
+    # 발송대기에서 `_검증입력`을 빼는 것과 같은 이유(2026-08-13).
+    files = list_md_files("replies", exclude_dirs=("_검증입력",))
     out = []
     for rel in files:
         raw = read_text(rel)
         title = _first(r"^#\s*([^\n]+)", raw)
-        received_at = _first(r"\*\*수신일시\*\*:\s*(\S+)", raw)
-        category = _first(r"\*\*회신\s*성격\*\*:\s*\*\*([^*]+)\*\*", raw)
+        fname = rel.rsplit("/", 1)[-1]
+        m = _REPLY_FILENAME_RE.match(fname)
+        cid = m.group(1) if m else ""
+        received_at = (
+            _first(r"\*\*수신일시\*\*:\s*(\S+)", raw)  # 목록형
+            or _first(r"\|\s*수신일시\s*\|\s*(\S+?)\s*\|", raw)  # 표형
+        )
+        category = (
+            _first(r"\*\*회신\s*성격\*\*:\s*\*\*([^*]+)\*\*", raw)  # 목록형
+            or _first(r"###\s*회신\s*성격\s*\n+\*\*([^*\n]+)\*\*", raw)  # 표+헤딩형
+        )
         summary = _first(r"\*\*요지\*\*:\s*([^\n]+)", raw)
         ask = _first(r"\*\*상대의 요구·기한\*\*:\s*([^\n]+)", raw)
         out.append({
-            "file": rel, "title": title, "수신일시": received_at,
-            "분류": category, "요지": summary, "요구": ask,
+            "file": rel, "id": cid, "title": title, "수신일시": received_at,
+            "분류": category.strip(), "요지": summary, "요구": ask,
+            "synthetic": "합성" in cid or "합성" in fname,
         })
     return out
+
+
+# ---------- 회신 자동 감시 상태 (H1 폴러) ----------
+
+def watch_status():
+    """회신 감시 루프가 살아 있는가 — `Harness/hook/imap_reply_poller.py`의 하트비트.
+
+    "회신이 안 온 것"과 "감시가 죽은 것"은 화면에서 같아 보인다. 그 둘을 구분
+    못 해 사용자가 정상 동작을 실패로 오해한 적이 있어(2026-08-13) 상태를
+    명시한다."""
+    import json
+    import time
+    raw = read_text("_watch.json")
+    if not raw:
+        return {"active": False}
+    try:
+        data = json.loads(raw)
+    except ValueError:
+        return {"active": False}
+
+    interval = data.get("interval") or 60
+    age = time.time() - (data.get("last_check") or 0)
+    # 한 주기를 놓치는 건 흔하다(네트워크 순단). 두 주기를 넘기면 죽은 것으로 본다.
+    alive = age < max(interval * 2 + 30, 150)
+    return {
+        "active": True,
+        "alive": alive,
+        "watching": data.get("watching", False),
+        "dispatch": data.get("dispatch", False),
+        "last_check_text": data.get("last_check_text", "?"),
+        "interval": interval,
+        "age_sec": int(age),
+        "last_result": data.get("last_result", ""),
+    }
+
+
+def pending_replies():
+    """캡처는 됐지만 아직 G7 레코드가 안 만들어진 회신 — "해석 중" 표시용.
+
+    상관 규칙: 스테이징 파일명의 `{수신일시}`로 시작하는 레코드가
+    `replies/`에 있으면 처리 완료로 본다(Spec의 레코드 파일명 규칙
+    `{수신일시}-{식별자}.md`가 그 대응을 보장한다)."""
+    import json
+    base = data_root() / "_수신함"
+    if not base.is_dir():
+        return []
+
+    done_prefixes = set()
+    for rel in list_md_files("replies", exclude_dirs=("_검증입력",)):
+        name = rel.rsplit("/", 1)[-1]
+        done_prefixes.add(name[:17])  # YYYY-MM-DD-HHMMSS 길이
+
+    out = []
+    for p in sorted(base.glob("*.json")):
+        if p.name.startswith("_"):
+            continue  # _watch.json 등 상태 파일
+        try:
+            d = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        received = d.get("received_at", "")
+        if received and received[:17] in done_prefixes:
+            continue  # 레코드가 이미 나왔다
+        out.append({
+            "received_at": received,
+            "from": d.get("from", ""),
+            "subject": d.get("subject", ""),
+            "file": f"_수신함/{p.name}",
+        })
+    return sorted(out, key=lambda x: x["received_at"], reverse=True)
 
 
 # ---------- G3 순위표(부가) ----------
@@ -278,12 +394,364 @@ def parse_aggregation():
     out = []
     for rel in files:
         raw = read_text(rel)
-        m = re.search(r"## 1절[\s\S]*?\n(.*?)(?:\n## |\Z)", raw, re.S)
+        # 두 표기 관례를 다 받는다 — parsers.py의 _APPROVAL_HEADER_RE와 동일한 이유:
+        # web/test-fixtures(옛 관례) "## 1절 ..."과 실제 g11-반응집계 스킬이 내는
+        # "## 1. ..."(아라비아 숫자 + 마침표) 표기가 서로 달라 실물 파일에서 파서가
+        # 0건을 잡는 것으로 이 불일치가 드러났다(2026-08-13).
+        m = re.search(r"## (?:1절|1\.)[\s\S]*?\n(.*?)(?:\n## |\Z)", raw, re.S)
         table = _table_rows(m.group(1)) if m else []
-        m2 = re.search(r"## 2절[\s\S]*?\n(.*?)(?:\n## |\Z)", raw, re.S)
+        m2 = re.search(r"## (?:2절|2\.)[\s\S]*?\n(.*?)(?:\n## |\Z)", raw, re.S)
         proposals = m2.group(1).strip() if m2 else ""
         out.append({"file": rel, "table": table, "proposals": proposals})
     return out
+
+
+# ---------- 개요(홈) 성과 지표 (2026-08-13 신설) ----------
+
+def _pct(n, denom):
+    return round(n / denom * 100) if denom else 0
+
+
+def pipeline_stats():
+    """"할 일"이 아니라 "지금까지 파이프라인이 실제로 만든 것" — 브리프 3대 요구(탐색·
+    목록화 / 맞춤 메일 / 반자동 발송, `CLAUDE.md` 2절 ①)가 홈 화면에서 눈에 띄게
+    보이도록 `docs/35` 2절에 추가된 화면 0 하단 섹션의 데이터다. 새 계산·새 산출물이
+    아니다 — 다른 화면이 이미 세는 값을 그대로 재사용한다(`33` D20)."""
+    candidates = parse_candidates()
+    g1_verdict = {"포함": 0, "판정 불가": 0, "제외": 0}
+    for c in candidates:
+        v = c["판정"].strip()
+        if v in g1_verdict:
+            g1_verdict[v] += 1
+    g1_total = len(candidates)
+
+    segs = parse_segments()
+    seg_count = sum(len(s["definitions"]) for s in segs)
+    assigned = sum(len(s["assignments"]) for s in segs)
+    unassigned = sum(len(s["unassigned"]) for s in segs)
+
+    contacts = parse_contacts()
+    g4_total = len(contacts)
+    g4_status = {"확보": 0, "메일 없음": 0, "발송 금지": 0, "미확보": 0}
+    for c in contacts:
+        s = c["상태"].strip()
+        if s in g4_status:
+            g4_status[s] += 1
+    grade = {"직통": 0, "일반": 0}
+    for c in contacts:
+        gd = c["등급"].strip()
+        if gd in grade:
+            grade[gd] += 1
+    secured = g4_status["확보"]
+
+    approvals = parse_approvals()
+    pending = sum(1 for a in approvals if a["결정"] not in ("승인", "거부"))
+    approved = sum(1 for a in approvals if a["결정"] == "승인")
+    rejected = sum(1 for a in approvals if a["결정"] == "거부")
+    sent_count = len(parse_sent())
+
+    return {
+        "g1": {"total": g1_total, **g1_verdict},
+        "g2": {"segments": seg_count, "assigned": assigned, "unassigned": unassigned},
+        "g4": {"total": g4_total, "secured": secured, "secure_rate": _pct(secured, g4_total),
+                "grade": grade, **g4_status},
+        "g5": {"pending": pending, "approved": approved, "rejected": rejected, "sent": sent_count},
+    }
+
+
+# ---------- 성과 시각화 5종 (2026-08-13 신설, "파이프라인 현황" 대체) ----------
+# 사용자 지시로 퍼널 막대를 걷어내고, 이 5개(추이·리드타임·업종 분포·연락처
+# 교차·회신 관련)로 바꿨다. 전부 실측 파일에서 뽑고, 회신 관련 2개만 현재
+# 표본이 합성/시연뿐이라 화면에서 그 사실을 같이 표시한다(숨기지 않는다).
+
+# dataviz 스킬 palette.md의 검증된 8슬롯 중 all-pairs 안전한 앞 3슬롯을 추이에,
+# 뒤에서 3슬롯 + 무채색 1을 업종에 썼다(같은 화면에 떠도 두 차트가 헷갈리지 않게
+# 계열을 분리) — 실제 색상값은 `web/static/css/style.css` :root 토큰(--cat-*)에
+# 있고, 여기서는 클래스명만 낸다.
+_CAT_TREND = ["cat-trend-1", "cat-trend-2", "cat-trend-3"]
+_CAT_INDUSTRY = ["cat-ind-1", "cat-ind-2", "cat-ind-3", "cat-ind-4"]
+
+
+def _date_only(s):
+    m = re.match(r"(\d{4}-\d{2}-\d{2})", s or "")
+    return m.group(1) if m else None
+
+
+def daily_trend():
+    """일별 처리량 추이 — G1 판정 통과·G4 연락처 확보·G5 발송 승인 3계열.
+    전부 실측이다(합성 데이터 없음 — G5는 발송기록이 아니라 실제 사람이 누른
+    승인일시를 쓴다, 발송기록 7건은 전부 합성 데모라 트렌드에서 뺐다)."""
+    g1_days, g4_days, g5_days = {}, {}, {}
+
+    for c in parse_candidates():
+        if c["판정"] != "포함":
+            continue
+        d = _date_only(c["수집일"])
+        if d:
+            g1_days[d] = g1_days.get(d, 0) + 1
+
+    for c in parse_contacts():
+        if c["상태"] != "확보":
+            continue
+        d = _date_only(_first(r"\*\*탐색일\*\*:\s*(\d{4}-\d{2}-\d{2})", read_text(c["file"])))
+        if d:
+            g4_days[d] = g4_days.get(d, 0) + 1
+
+    for a in parse_approvals():
+        if a["결정"] != "승인":
+            continue
+        d = _date_only(a["승인일시"])
+        if d:
+            g5_days[d] = g5_days.get(d, 0) + 1
+
+    all_days = sorted(set(g1_days) | set(g4_days) | set(g5_days))
+    if not all_days:
+        return {"has_data": False, "days": [], "series": []}
+
+    W, H, PAD_L, PAD_R, PAD_T, PAD_B = 640, 180, 6, 6, 14, 22
+    n = len(all_days)
+    plot_w, plot_h = W - PAD_L - PAD_R, H - PAD_T - PAD_B
+    max_v = max([1] + list(g1_days.values()) + list(g4_days.values()) + list(g5_days.values()))
+
+    def xpos(i):
+        return PAD_L + (i * plot_w / (n - 1) if n > 1 else plot_w / 2)
+
+    def ypos(v):
+        return PAD_T + plot_h - (v / max_v) * plot_h
+
+    def build(days_dict, label, code, color_cls):
+        pts = " ".join(f"{xpos(i):.1f},{ypos(days_dict.get(d, 0)):.1f}" for i, d in enumerate(all_days))
+        dots = [{"x": round(xpos(i), 1), "y": round(ypos(days_dict.get(d, 0)), 1),
+                 "v": days_dict.get(d, 0), "date": d} for i, d in enumerate(all_days)]
+        return {"label": label, "code": code, "points": pts, "dots": dots,
+                "color_cls": color_cls, "total": sum(days_dict.values())}
+
+    return {
+        "has_data": True, "width": W, "height": H, "max": max_v,
+        "first_day": all_days[0], "last_day": all_days[-1],
+        "series": [
+            build(g1_days, "판정 통과", "G1", _CAT_TREND[0]),
+            build(g4_days, "연락처 확보", "G4", _CAT_TREND[1]),
+            build(g5_days, "발송 승인", "G5", _CAT_TREND[2]),
+        ],
+    }
+
+
+def industry_distribution():
+    """업종별 후보 분포 — G1 판정 대상 전체(포함/판정불가/제외 무관) O5 업종 분포.
+
+    O5가 `?`(관찰 불가)이거나 빈값인 건(주로 판정불가 후보)은 "다른 업종"이 아니라
+    "업종 자체를 모른다"는 뜻이라 **별도로 센다** — 2026-08-13 실물 대조 결과
+    이 값이 17건(+ 빈값 4건)으로 가장 큰 축에 맞먹어, 이걸 이름 없는 "기타"에
+    합치면 실제로는 없는 업종처럼 보인다. 상위 3개 실제 업종 외 나머지는
+    "기타"(진짜 다른 업종, 드묾)와 "미확인"(O5 관찰 불가)을 하나의 회색 슬라이스로
+    합치되, 안에 무엇이 몇 건인지는 라벨에 그대로 남긴다."""
+    known_counts = {}
+    known_order = []
+    unknown = 0
+    for c in parse_candidates():
+        ind = (c["업종"] or "").strip()
+        if not ind or ind == "?":
+            unknown += 1
+            continue
+        if ind not in known_counts:
+            known_order.append(ind)
+        known_counts[ind] = known_counts.get(ind, 0) + 1
+
+    total = sum(known_counts.values()) + unknown
+    top3 = known_order[:3]
+    other_known = sum(known_counts[k] for k in known_order[3:])
+
+    rows = []
+    cum = 0
+    for i, name in enumerate(top3):
+        v = known_counts[name]
+        pct = _pct(v, total)
+        rows.append({"name": name, "value": v, "pct": pct, "from": _pct(cum, total), "color_cls": _CAT_INDUSTRY[i]})
+        cum += v
+    if other_known or unknown:
+        v = other_known + unknown
+        pct = _pct(v, total)
+        detail = []
+        if other_known:
+            detail.append(f"기타 업종 {other_known}건")
+        if unknown:
+            detail.append(f"업종 판정 불가 {unknown}건")
+        rows.append({"name": "기타/미확인", "value": v, "pct": pct, "from": _pct(cum, total),
+                     "color_cls": _CAT_INDUSTRY[3], "detail": " · ".join(detail)})
+    return {"total": total, "rows": rows}
+
+
+def industry_contact_heatmap():
+    """업종 × 연락처 확보 상태 교차표 — 업종에 따라 확보 성공률이 달라지는지 보여준다.
+    O5가 `?`(관찰 불가)·빈값이면 "미상"으로 묶는다(`_candidate_industry_map`이 정규화)."""
+    cand_industry = _candidate_industry_map()
+    statuses = ["확보", "메일 없음", "미확보"]
+    grid = {}
+    industries = []
+    for ct in parse_contacts():
+        ind = cand_industry.get(ct["id"], "미상")
+        if ind not in industries:
+            industries.append(ind)
+        s = ct["상태"] if ct["상태"] in statuses else "미확보"
+        grid[(ind, s)] = grid.get((ind, s), 0) + 1
+    max_v = max([1] + list(grid.values()))
+    rows = []
+    for ind in industries:
+        cells = []
+        for s in statuses:
+            v = grid.get((ind, s), 0)
+            ratio = v / max_v if max_v else 0
+            cells.append({"status": s, "value": v, "ratio": round(ratio, 2), "light_text": ratio > 0.55})
+        rows.append({"industry": ind, "cells": cells})
+    return {"statuses": statuses, "rows": rows}
+
+
+def _candidate_industry_map():
+    """기업 식별자 → 정규화된 업종(O5가 `?`·빈값이면 "미상"). `industry_distribution`·
+    `industry_contact_heatmap`·`lead_time_g1_to_g4`가 같은 정규화를 공유한다."""
+    m = {}
+    for c in parse_candidates():
+        ind = (c["업종"] or "").strip()
+        m[c["id"]] = "미상" if (not ind or ind == "?") else ind
+    return m
+
+
+def lead_time_g1_to_g4():
+    """리드타임 — G1 판정일(수집일) → G4 탐색일. 실측(두 실제 날짜의 차)이다.
+    G1→G5(발송)는 지금 실 발송 건이 0건이라(발송기록 전부 합성) 계산하지 않는다."""
+    g1_dates = {c["id"]: _date_only(c["수집일"]) for c in parse_candidates() if c["수집일"]}
+    industry_map = _candidate_industry_map()
+
+    # 화면 표시명은 도메인 식별자(ingni-store-com 등) 대신 "{업종}회사{번호}"로 보여준다
+    # (2026-08-13 사용자 지시 — 심사위원이 도메인만 보고는 무슨 회사인지 가늠하기 어렵다).
+    # 번호는 후보 목록에 등장한 순서로 매겨 안정적이다(리드타임 표시 대상이 바뀌어도 안 흔들림).
+    industry_seq = {}
+    counters = {}
+    for c in parse_candidates():
+        ind = industry_map.get(c["id"], "미상")
+        counters[ind] = counters.get(ind, 0) + 1
+        industry_seq[c["id"]] = counters[ind]
+
+    rows = []
+    for c in parse_contacts():
+        g1d = g1_dates.get(c["id"])
+        g4d = _date_only(_first(r"\*\*탐색일\*\*:\s*(\d{4}-\d{2}-\d{2})", read_text(c["file"])))
+        if g1d and g4d:
+            days = (date.fromisoformat(g4d) - date.fromisoformat(g1d)).days
+            if days >= 0:
+                ind = industry_map.get(c["id"], "미상")
+                label = f"{ind}회사{industry_seq.get(c['id'], '')}"
+                rows.append({"id": c["id"], "label": label, "days": days})
+    rows.sort(key=lambda r: r["days"], reverse=True)
+    max_days = max([1] + [r["days"] for r in rows])
+    for r in rows:
+        r["pct"] = _pct(r["days"], max_days) or (2 if r["days"] == 0 else 0)
+    return {"rows": rows, "max_days": max_days}
+
+
+_SYNTHETIC_INDUSTRY_KO = {"fashion": "패션", "beauty": "뷰티", "food": "푸드"}
+
+
+def _friendly_label(cid):
+    """화면에 보이는 이름만 다듬는다 — 조인용 식별자(cid) 자체는 그대로 둔다.
+    "합성데모-fashion-01" 같은 내부 식별자를 심사위원이 한눈에 읽을 "기업1(패션)"
+    형태로 바꾼다(2026-08-13 사용자 지시). 매칭 안 되면 원래 id를 그대로 쓴다."""
+    m = re.match(r"합성데모-([a-z]+)-0*(\d+)$", cid or "")
+    if m:
+        industry = _SYNTHETIC_INDUSTRY_KO.get(m.group(1), m.group(1))
+        return f"기업{m.group(2)}({industry})"
+    return cid
+
+
+def _normalize_reply_category(cat):
+    """"C1(관심·진행 의향)"과 "C1 — 관심·진행 의향"을 같은 라벨로 합친다 — 목록형·
+    표+헤딩형 두 관례가 코드와 설명을 잇는 구두점만 다르다(2026-08-13 발견)."""
+    cat = (cat or "").strip()
+    m = re.match(r"(C\d+)\s*[—\-(]\s*([^)]+?)\)?$", cat)
+    return f"{m.group(1)}({m.group(2).strip()})" if m else cat
+
+
+def reply_insights():
+    """회신 8분류 분포 + 회신까지 걸린 시간. 지금 존재하는 회신 5건 전부
+    합성 데모/시연이라(`replies/*.md` 머리에 명시) 그 사실을 함께 반환한다 —
+    감춘 채 보여주면 실제 성과처럼 읽힌다."""
+    sent_at = {}
+    for rel in list_md_files("발송기록"):
+        raw = read_text(rel)
+        cid = _first(r"\*\*기업\s*식별자\*\*[:：]?\s*([^\n]+)", raw).strip()
+        s = _first(r"\*\*발송일시\*\*:\s*(\S+)", raw)
+        if cid and s:
+            sent_at[cid] = s
+
+    replies = parse_replies()
+    class_counts = {}
+    latency_rows = []
+    any_synthetic = False
+    for r in replies:
+        if r["synthetic"]:
+            any_synthetic = True
+        # "C1(관심·진행 의향)"(목록형)과 "C1 — 관심·진행 의향"(표+헤딩형)이 같은
+        # 분류인데 구두점이 달라 따로 집계되던 것을 정규화한다(2026-08-13 실물 대조).
+        label = _normalize_reply_category(r["분류"]) or "미분류"
+        class_counts[label] = class_counts.get(label, 0) + 1
+        s = sent_at.get(r["id"])
+        if s and r["수신일시"]:
+            try:
+                fmt = "%Y-%m-%d-%H%M%S"
+                hours = (datetime.strptime(r["수신일시"], fmt) - datetime.strptime(s, fmt)).total_seconds() / 3600
+                if hours >= 0:
+                    latency_rows.append({"id": r["id"], "label": _friendly_label(r["id"]),
+                                          "hours": round(hours, 1), "synthetic": r["synthetic"]})
+            except ValueError:
+                pass
+
+    class_rows = sorted(class_counts.items(), key=lambda kv: kv[1], reverse=True)
+    max_class = max([1] + [v for _, v in class_rows])
+    max_hours = max([1] + [r["hours"] for r in latency_rows])
+    return {
+        "total_replies": len(replies), "any_synthetic": any_synthetic,
+        "classification": [{"label": k, "value": v, "pct": _pct(v, max_class)} for k, v in class_rows],
+        "latency": [{**r, "pct": _pct(r["hours"], max_hours) or 2} for r in latency_rows],
+    }
+
+
+# ---------- 기대 효과 (2026-08-13 신설) — 실측이 아니라 가정치 ----------
+
+def expected_effects():
+    """`docs/50_실사용_도입설계.md`에 이미 근거·가정을 붙여 문서화된 값을 그대로
+    시각화한다 — 여기서 새 추정을 만들지 않는다(운영 변수 단일 출처, `CLAUDE.md`
+    5절). 근거 없이 지어낸 수치(예: 매출 추정)는 이 프로젝트에 데이터 소스 자체가
+    없어 넣지 않았다 — 넣을 수 있는 값만 넣었다. 막대 위치(pct_low/high)는 카드
+    안에서만 비교 가능하게 카드별 최댓값 기준으로 스케일한다."""
+    proc_rows = [
+        {"label": "후보 100건", "cold": 15.0, "warm": 7.5},
+        {"label": "후보 300건", "cold": 45.0, "warm": 22.5},
+    ]
+    proc_max = max(r["cold"] for r in proc_rows)
+    for r in proc_rows:
+        r["pct_low"] = round(r["warm"] / proc_max * 100)
+        r["pct_high"] = round(r["cold"] / proc_max * 100)
+
+    appr_rows = [
+        {"label": "발송 대기 10건/일", "low": 10, "high": 30},
+        {"label": "발송 대기 30건/일", "low": 30, "high": 90},
+    ]
+    appr_max = max(r["high"] for r in appr_rows)
+    for r in appr_rows:
+        r["pct_low"] = round(r["low"] / appr_max * 100)
+        r["pct_high"] = round(r["high"] / appr_max * 100)
+
+    return {
+        "processing_scale": {
+            "source": "docs/50 2절 — G1 실측(기업당 4~9분) 기반 외삽, 가정",
+            "unit": "시간", "rows": proc_rows,
+        },
+        "approval_burden": {
+            "source": "docs/50 1-2절 — 승인 1건당 1~3분(가정) × 발송 대기 건수",
+            "unit": "분/일", "rows": appr_rows,
+        },
+    }
 
 
 # ---------- 개요(홈) 카드 ----------

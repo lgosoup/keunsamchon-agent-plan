@@ -5,10 +5,14 @@
 {% for a in items %}
 <div class="panel">
   <h2>{{ a.file }}</h2>
+  {% if a.table %}
   <table class="data">
-  <thead><tr>{% for k in a.table[0].keys() if a.table %}<th>{{ k }}</th>{% endfor %}</tr></thead>
+  <thead><tr>{% for k in a.table[0].keys() %}<th>{{ k }}</th>{% endfor %}</tr></thead>
   <tbody>{% for row in a.table %}<tr>{% for v in row.values() %}<td>{{ v }}</td>{% endfor %}</tr>{% endfor %}</tbody>
   </table>
+  {% else %}
+  <p class="empty">(이 회차는 조합별 집계표를 못 읽었습니다 — 원문은 위 파일명을 눌러 확인)</p>
+  {% endif %}
   <h3>조정 제안</h3>
   <div class="mail-preview">{{ a.proposals }}</div>
 </div>
