@@ -5,7 +5,7 @@ import re
 from datetime import date, datetime
 from markdown_it import MarkdownIt
 
-from data_source import read_text, list_md_files, data_root
+from data_source import read_text, list_md_files, data_root, read_criteria, list_criteria_md_files
 
 # commonmark 프리셋엔 표(GFM table)가 없다 — 원문 상세 화면에 표가 아주 많아(승인란 등)
 # gfm-like로 켜되, linkify-it이 없어 linkify 규칙만 끈다.
@@ -157,18 +157,57 @@ def _split_approval_items(raw: str):
 def _extract_blockquote_after(label_pattern: str, body: str) -> str:
     """`**라벨**` 다음에 오는 `>`로 시작하는 인용구 블록 전체를 뽑아 렌더링용 마크다운으로 돌려준다.
     승인 화면에 실제 메일 본문이 인라인돼 있어야 사람이 내용을 보고 판단할 수 있다(2026-08-12
-    — 참조 링크만 있고 본문이 안 보이던 실물 문제를 사용자가 지적해 추가)."""
-    m = re.search(label_pattern + r"\s*\n+((?:>.*(?:\n|$))+)", body)
+    — 참조 링크만 있고 본문이 안 보이던 실물 문제를 사용자가 지적해 추가).
+
+    라벨과 인용구 사이에 다른 줄(예: "일본어 제목: ..." 한 줄)이 끼어 있어도 찾는다
+    (2026-08-14 — 실제 S2 배치에서 대표 문안이 라벨 바로 다음 줄에 제목을 얹어 놓아
+    옛 "라벨 다음 줄이 바로 인용구여야 한다" 가정이 9건 중 1건에서 깨진 것을 실물로 확인)."""
+    m = re.search(label_pattern + r"[\s\S]*?\n((?:>.*(?:\n|$))+)", body)
     return m.group(1).strip() if m else ""
+
+
+# 일본어 본문/문안 라벨 — "본문"과 "문안"이 실제로 혼용되고(2026-08-14 실물 확인),
+# 라벨 뒤에 "— N회차 (...)" 처럼 `**` 안쪽에 붙는 꼬리나 "(전문 원본: ...)" 처럼
+# `**` 바깥쪽에 붙는 꼬리가 둘 다 나타난다 — 어느 쪽이든 라벨 자체(핵심 두 글자)만
+# 확인하고 나머지는 [^\n*]*(안쪽 꼬리)·[^\n]*(바깥쪽 꼬리)로 흡수한다.
+_JP_BODY_LABEL = r"\*\*일본어\s*(?:본문|문안)[^\n*]*\*\*[^\n]*"
+_KR_INTENT_LABEL = r"\*\*한국어\s*발신\s*의도\s*전문[^\n*]*\*\*[^\n]*"
+
+
+def extract_jp_body_md(body: str) -> str:
+    return _extract_blockquote_after(_JP_BODY_LABEL, body) or _extract_blockquote_after(r"###\s*일본어\s*본문", body)
+
+
+def extract_kr_intent_md(body: str) -> str:
+    return _extract_blockquote_after(_KR_INTENT_LABEL, body) or _extract_blockquote_after(r"###\s*한국어\s*발신\s*의도\s*전문", body)
+
+
+def extract_subject(body: str) -> str:
+    return (
+        _first(r"###\s*일본어\s*제목\s*\n+件名[:：]\s*([^\n]+)", body)
+        or _first(r"###\s*제목\s*\n+([^\n]+)", body)
+        or _first(r"\*\*일본어\s*제목\*\*[:：]?\s*([^\n]+)", body)
+        # 라벨이 볼드·헤딩 없이 평문 한 줄("일본어 제목: ...")로만 있는 경우
+        # (2026-08-14 S2 배치 실물 확인) — 줄 시작을 요구하지 않는다.
+        or _first(r"일본어\s*제목[:：]\s*([^\n]+)", body)
+        or _first(r"(?:^|\n)제목:\s*([^\n]+)", body)
+    )
 
 
 def _sent_company_ids():
     """이미 발송 기록이 있는 기업 식별자 집합 — 승인 대기함에서 뺄 대상 판별용(2026-08-12 추가).
-    파일명이 아니라 본문의 「기업 식별자」 항목으로 조인한다(G12 스킬과 같은 원칙 — 파일명을 쪼개 추측하지 않는다)."""
+    파일명이 아니라 본문의 「기업 식별자」 항목으로 조인한다(G12 스킬과 같은 원칙 — 파일명을 쪼개 추측하지 않는다).
+
+    2026-08-14 — 실제 `g5-제안메일제작발송` 발송 모드를 처음 실행해 보니 이
+    필드가 표 형식(`| 기업 식별자 | ... |`)으로 나와, 목록형만 보던 옛 정규식이
+    실제 발송 기록에서는 전부 매치 실패하고 있었다(합성 데모 7건만 목록형이라
+    우연히 통과했었다). 매치 실패가 조용히 "그 기업은 발송 이력 없음"으로
+    읽혀 **중복 발송 방지 게이트가 실제 산출물에서는 작동하지 않는** 상태였다
+    — `send_record_field`로 두 표기 다 받게 고쳤다."""
     ids = set()
     for rel in list_md_files("발송기록"):
         raw = read_text(rel)
-        cid = _first(r"\*\*기업\s*식별자\*\*[:：]?\s*([^\n]+)", raw).strip()
+        cid = send_record_field(raw, "기업\\s*식별자")
         if cid:
             ids.add(cid)
     return ids
@@ -184,20 +223,9 @@ def parse_approvals():
             if item["id"] in sent_ids:
                 continue  # 이미 발송 완료 — 승인 대기함에는 더 이상 표시하지 않는다(/sent에서 확인)
             body = item["body"]
-            subject = (
-                _first(r"###\s*일본어\s*제목\s*\n+件名[:：]\s*([^\n]+)", body)
-                or _first(r"###\s*제목\s*\n+([^\n]+)", body)
-                or _first(r"\*\*일본어\s*제목\*\*[:：]?\s*([^\n]+)", body)
-                or _first(r"(?:^|\n)제목:\s*([^\n]+)", body)
-            )
-            jp_body_md = (
-                _extract_blockquote_after(r"\*\*일본어\s*본문\*\*", body)
-                or _extract_blockquote_after(r"###\s*일본어\s*본문", body)
-            )
-            kr_intent_md = (
-                _extract_blockquote_after(r"\*\*한국어\s*발신\s*의도\s*전문\*\*[^\n]*", body)
-                or _extract_blockquote_after(r"###\s*한국어\s*발신\s*의도\s*전문", body)
-            )
+            subject = extract_subject(body)
+            jp_body_md = extract_jp_body_md(body)
+            kr_intent_md = extract_kr_intent_md(body)
             decision = _first(r"\|\s*승인\s*/\s*거부\s*\|\s*([^\|]*)\|", body).strip()
             approver = _first(r"\|\s*승인자\s*\|\s*([^\|]*)\|", body).strip()
             approved_at = _first(r"\|\s*승인일시\s*\|\s*([^\|]*)\|", body).strip()
@@ -213,21 +241,40 @@ def parse_approvals():
 
 # ---------- G5 발송기록 + G6 상태 ----------
 
+def send_record_field(raw: str, label: str) -> str:
+    """발송기록 한 필드를 두 표기 관례로 뽑는다 — 목록형("- **라벨**: 값",
+    G11 시연용 합성 입력이 손으로 쓴 관례)과 표형("| 라벨 | 값 |", 실제
+    `g5-제안메일제작발송` 발송 모드가 실제로 내는 관례, 2026-08-14 실물
+    실행으로 처음 확인됐다 — 헤딩도 "# {id} — 발송 기록"으로 id가 헤딩
+    **뒤쪽**에 와, id를 헤딩에서 뽑던 옛 방식(`^#\\s*([^\\s—]+)`)이
+    "발송"이라는 글자를 id로 잘못 뽑고 있었다). 둘 다 받는다."""
+    return (
+        _first(rf"\*\*{label}\*\*[:：]?\s*([^\n]+)", raw)  # 목록형
+        or _first(rf"\|\s*{label}\s*\|\s*([^\|\n]+)\|", raw)  # 표형(실제 산출)
+    ).strip()
+
+
+def send_record_body_md(raw: str) -> str:
+    """발송기록의 본문 인용구 — 실제 산출은 `**본문**`(일본어 접두어 없음) 뒤
+    바로 인용구가 온다(2026-08-14 실물 확인). 옛 헤딩형(`### 본문`)도 받는다."""
+    return _extract_blockquote_after(r"\*\*본문\*\*[^\n]*", raw) or _extract_blockquote_after(r"###\s*본문", raw)
+
+
 def parse_sent():
     files = list_md_files("발송기록")
     status_files = {}
     for rel in list_md_files("상태"):
         raw = read_text(rel)
-        cid = _first(r"^#\s*([^\s—]+)", raw)
+        cid = send_record_field(raw, "기업\\s*식별자") or _first(r"^#\s*([^\s—]+)", raw)
         status = _first(r"##\s*상태:\s*\*\*\[([^\]]+)\]\*\*", raw, "대기중")
         status_files[cid] = status
     out = []
     for rel in files:
         raw = read_text(rel)
-        cid = _first(r"^#\s*([^\s—]+)", raw)
-        to_addr = _first(r"\*\*수신\s*주소\*\*:\s*(\S+)", raw)
-        sent_at = _first(r"\*\*발송일시\*\*:\s*(\S+)", raw)
-        subject = _first(r"###\s*제목\s*\n+([^\n]+)", raw)
+        cid = send_record_field(raw, "기업\\s*식별자")
+        to_addr = send_record_field(raw, "수신\\s*주소")
+        sent_at = send_record_field(raw, "발송일시")
+        subject = send_record_field(raw, "제목") or _first(r"###\s*제목\s*\n+([^\n]+)", raw)
         out.append({
             "id": cid, "file": rel, "수신주소": to_addr, "발송일시": sent_at,
             "제목": subject, "상태": status_files.get(cid, "대기중"),
@@ -265,7 +312,11 @@ def parse_replies():
             _first(r"\*\*회신\s*성격\*\*:\s*\*\*([^*]+)\*\*", raw)  # 목록형
             or _first(r"###\s*회신\s*성격\s*\n+\*\*([^*\n]+)\*\*", raw)  # 표+헤딩형
         )
-        summary = _first(r"\*\*요지\*\*:\s*([^\n]+)", raw)
+        summary = _first(r"\*\*요지\*\*:\s*([^\n]+)", raw)  # 목록형
+        if not summary:
+            m = re.search(r"###\s*요지[^\n]*\n((?:\d+\.\s*[^\n]+\n?)+)", raw)  # 표+헤딩형(번호 목록)
+            if m:
+                summary = " ".join(re.findall(r"\d+\.\s*([^\n]+)", m.group(1)))
         ask = _first(r"\*\*상대의 요구·기한\*\*:\s*([^\n]+)", raw)
         out.append({
             "file": rel, "id": cid, "title": title, "수신일시": received_at,
@@ -403,6 +454,98 @@ def parse_aggregation():
         m2 = re.search(r"## (?:2절|2\.)[\s\S]*?\n(.*?)(?:\n## |\Z)", raw, re.S)
         proposals = m2.group(1).strip() if m2 else ""
         out.append({"file": rel, "table": table, "proposals": proposals})
+    return out
+
+
+# ---------- G12 질의응답로그 — H9(기준 정합성 검토) 자동 검토 구분 (2026-08-14 신설) ----------
+# docs/35 6절 설계: H9가 만드는 질문은 hook_h9_criteria_review.sh가 조립하는 고정 템플릿
+# ("{파일명}의 내용이 다음과 같이 바뀌었다. ... 이 변경이 다른 기준·스펙과 충돌하는지
+# 검토해줘.")이라 그 시작·끝 문구로 판별한다 — 로그 형식에 새 출처 필드를 추가하지 않는다.
+_H9_QUESTION_RE = re.compile(
+    r"의\s*내용이\s*다음과\s*같이\s*바뀌었다\..*이\s*변경이\s*다른\s*기준[·\-]스펙과\s*충돌하는지\s*검토해줘\.?",
+    re.S,
+)
+
+
+def qna_question(raw: str) -> str:
+    """목록형("- **질문 원문**: ...", 한 줄)과 헤딩+인용구형("## 질문 원문\n> ...",
+    여러 줄 인용구) 둘 다 받는다 — 실물 로그 6건 대조 결과 H9 기원 로그 중 하나가
+    후자 형식이었다(2026-08-14, `specs/질의응답로그/2026-08-11-150000-2.md`)."""
+    one_line = _first(r"\*\*질문\s*원문\*\*[:：]\s*([^\n]+)", raw)
+    if one_line:
+        return one_line
+    m = re.search(r"##\s*질문\s*원문\s*\n+((?:>.*(?:\n|$))+)", raw)
+    if not m:
+        return ""
+    return "\n".join(line.lstrip(">").strip() for line in m.group(1).splitlines())
+
+
+def is_h9_origin(raw: str) -> bool:
+    return bool(_H9_QUESTION_RE.search(qna_question(raw)))
+
+
+def h9_target_file(raw: str) -> str:
+    """H9 질문이 어느 `기준/*.md` 파일을 대상으로 했는지 — 템플릿이 항상
+    "{파일명}의 내용이 다음과 같이 바뀌었다"로 시작하므로 그 파일명만 뽑는다.
+    질문이 코드 서식(`` `G2_...` ``)으로 감싸져 있는 실물 사례가 있어 백틱도 벗긴다."""
+    q = qna_question(raw)
+    m = re.search(r"`?([\w가-힣]+\.md)`?의\s*내용이\s*다음과\s*같이\s*바뀌었다", q)
+    return m.group(1) if m else ""
+
+
+def qna_answer_preview(raw: str, length: int = 180) -> str:
+    """`## 답변` 절 본문을 마크다운 기호 없이 앞부분만 — 기준 카드 화면의
+    "간결한 검토 칸"용(도 35 6-2절). 전체 내용은 여전히 로그 원문(상세 화면)에 있다."""
+    m = re.search(r"##\s*답변\s*\n+([\s\S]*?)(?:\n##\s|\Z)", raw)
+    body = m.group(1) if m else ""
+    text = re.sub(r"[*`_>#]", "", body)
+    text = re.sub(r"\s+", " ", text).strip()
+    return (text[: length].rstrip() + "…") if len(text) > length else text
+
+
+def latest_h9_review_by_file():
+    """기준 파일명 → 그 파일을 대상으로 한 가장 최근 H9 로그 요약.
+    로그 파일명이 `{일시}.md`(초 단위, 사전순=시간순)라 정렬로 최신을 가른다."""
+    out = {}
+    for rel in list_md_files("질의응답로그"):
+        raw = read_text(rel)
+        if not is_h9_origin(raw):
+            continue
+        target = h9_target_file(raw)
+        if not target:
+            continue
+        prior = out.get(target)
+        if prior and prior["file"] >= rel:
+            continue
+        out[target] = {"file": rel, "preview": qna_answer_preview(raw)}
+    return out
+
+
+# ---------- 기준 카드 (2026-08-14 신설, docs/35 6절 — H9 자동 검토) ----------
+
+def _criteria_g_badge(name: str) -> str:
+    """파일명에서 G번호만 뽑는다 — `G4_연락처유효성기준.md` → `G4`,
+    `판정시트_G1.md`처럼 접두어가 아니어도 찾는다. 다른 화면들이 전부
+    `<span class="badge">G4</span>` 식으로 기능 번호를 눈에 띄게 붙이는데
+    이 화면만 제목 텍스트 안에 섞여 있었다(2026-08-14 사용자 지적)."""
+    m = re.match(r"(G\d+)_", name) or re.search(r"(G\d+)", name)
+    return m.group(1) if m else ""
+
+
+def parse_criteria_cards():
+    """`html`(카드 본문 전체 렌더링)을 포함한다 — 2026-08-14 추가.
+    사용자가 "뭐가 있는지 알아야 뭘 수정할지 안다"고 지적: 검토 결과만 보여주고
+    정작 지금 카드에 뭐가 적혀 있는지는 안 보였다. 접었다 펼 수 있게(`<details>`)
+    보여준다 — 승인 화면의 "한국어 원안 보기"(`kr-intent`)와 같은 기존 패턴 재사용."""
+    reviews = latest_h9_review_by_file()
+    out = []
+    for name in list_criteria_md_files():
+        raw = read_criteria(name)
+        title = _first(r"^#\s*([^\n]+)", raw) or name
+        out.append({
+            "name": name, "title": title, "review": reviews.get(name),
+            "html": render_markdown(raw), "g_badge": _criteria_g_badge(name),
+        })
     return out
 
 
@@ -679,8 +822,8 @@ def reply_insights():
     sent_at = {}
     for rel in list_md_files("발송기록"):
         raw = read_text(rel)
-        cid = _first(r"\*\*기업\s*식별자\*\*[:：]?\s*([^\n]+)", raw).strip()
-        s = _first(r"\*\*발송일시\*\*:\s*(\S+)", raw)
+        cid = send_record_field(raw, "기업\\s*식별자")
+        s = send_record_field(raw, "발송일시")
         if cid and s:
             sent_at[cid] = s
 

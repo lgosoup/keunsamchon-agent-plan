@@ -1,0 +1,23 @@
+# 연락처 확보 — www-rakuten-co-jp-lindt-chocolate
+
+- **기업 식별자**: www-rakuten-co-jp-lindt-chocolate
+- **탐색일**: 2026-08-14
+- **탐색 주체**: Claude(`g4-연락처확보` 절차, `run-orchestrator` 경유)
+- **세그먼트 소속**: `specs/segments/SEG-A-v1.md`에 미등재 — 사용자 지시대로 게이트 없이 진행
+
+## 상태: [확보]
+- **연락처 값**: lindt-chocolate_3@shop.rakuten.co.jp
+- **어디서 찾았는지**: https://www.rakuten.co.jp/lindt-chocolate/info.html (특정상거래법 표기, 원본 HTTP 403 → Jina AI Reader 경유로 관찰) — 반품 연락처로 명시
+- **유효 등급**: 일반 — 반품 전용 표기라 영업·제안 접수 전용은 아니나 그 외 별도 창구가 없어 낮은 등급(일반)으로 기록
+- **거부 표시 없음 확인**: 이 주소는 G1이 관찰하지 않은 신규 주소라 이번에 직접 확인 — 광고 메일 거부·특정전자메일 거부 관련 문구 없음 (2026-08-14, Jina 경유 확인)
+- **`발송금지.md` 미등재 확인**: 등재 1건(합성시연-www-titivate-jp)뿐이고 lindt-chocolate_3@shop.rakuten.co.jp는 없음 — 2026-08-14
+
+## 자체 점검
+| 항목 | 결과 |
+|---|---|
+| 상태 4종 중 하나로 기록 | 충족 — [확보] |
+| 유효 등급·출처 URL | 충족 |
+| 거부 표시 없음 확인 | 충족 — 새 주소를 직접 확인함 |
+| 발송금지.md 미등재 확인 | 충족 |
+| 개인정보 미기록 | 충족 |
+| 대표 우선 탐색 | 해당 없음 — 미분류, 게이트 없음 |

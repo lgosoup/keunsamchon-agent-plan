@@ -13,7 +13,10 @@
 
 <h2>지난 질의응답 로그</h2>
 {% for l in logs %}
-<div class="panel">{{ l.html | safe }}</div>
+<div class="panel">
+  {% if l.is_h9 %}<span class="badge" title="기준/*.md 수정을 감지해 자동으로 돌린 정합성 검토 — H9">자동 검토 · H9</span>{% endif %}
+  {{ l.html | safe }}
+</div>
 {% else %}
 <p class="empty">로그가 없습니다.</p>
 {% endfor %}

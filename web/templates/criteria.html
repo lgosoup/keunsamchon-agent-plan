@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}기준 카드 — 큰삼촌컴퍼니 대시보드{% endblock %}
+{% block content %}
+<h1>기준 카드 <span class="badge">H9 자동 검토</span></h1>
+<p class="sub">자연어로 수정을 요청하면 LLM이 변경안(diff)만 제안합니다. 화면에서 확인하고 "적용"을 눌러야 실제로 파일이 바뀌고, 적용 직후 정합성 검토가 자동으로 시작됩니다.</p>
+
+{% for c in cards %}
+<div class="panel criteria-card" data-file="{{ c.name }}">
+  <h3>{{ c.title }} {% if c.g_badge %}<span class="badge">{{ c.g_badge }}</span>{% endif %} <span class="sub">{{ c.name }}</span></h3>
+
+  <details class="criteria-full">
+    <summary>지금 카드 내용 보기</summary>
+    <div class="criteria-full-body">{{ c.html | safe }}</div>
+  </details>
+
+  {% if c.review %}
+  <div class="criteria-review">
+    <div class="criteria-review-label">최근 자동 검토</div>
+    <p>{{ c.review.preview }}</p>
+    <a class="detail-link" href="/detail?path={{ c.review.file }}">전체 검토 보기</a>
+  </div>
+  {% else %}
+  <p class="empty">아직 자동 검토 없음 — 수정이 적용되면 여기에 나타납니다.</p>
+  {% endif %}
+
+  <div class="criteria-edit">
+    <form class="criteria-propose-form">
+      <input type="text" class="criteria-instruction" placeholder="예: 3절 순서 4에 예외 조건 하나 추가해줘" autocomplete="off">
+      <button type="submit" class="btn">수정 제안받기</button>
+    </form>
+    <div class="criteria-proposal" hidden>
+      <div class="criteria-diff">
+        <div class="criteria-diff-old"><div class="diff-label">변경 전</div><pre></pre></div>
+        <div class="criteria-diff-new"><div class="diff-label">변경 후</div><pre></pre></div>
+      </div>
+      <p class="criteria-explanation"></p>
+      <div class="actions">
+        <button type="button" class="btn apply">적용</button>
+        <button type="button" class="btn secondary cancel">취소</button>
+      </div>
+      <div class="criteria-apply-result"></div>
+    </div>
+    <div class="criteria-propose-error"></div>
+  </div>
+</div>
+{% else %}
+<p class="empty">기준 카드가 없습니다.</p>
+{% endfor %}
+{% endblock %}

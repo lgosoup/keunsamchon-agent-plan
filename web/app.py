@@ -1,5 +1,6 @@
 """큰삼촌컴퍼니 대시보드 — docs/35_웹_대시보드_설계.md 구현.
 실행: python web/app.py  (환경변수 DASHBOARD_DATA_ROOT, DISPATCH_MODE로 조정)"""
+import os
 import sys
 from pathlib import Path
 
@@ -14,6 +15,7 @@ import uvicorn
 
 import parsers
 import dispatch
+import criteria_edit
 from data_source import read_text, data_root
 
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
@@ -51,7 +53,6 @@ async def approvals_view(request):
 
 
 async def approvals_decide(request):
-    import os
     form = await request.form()
     file_rel = form.get("file")
     company_id = form.get("company_id")
@@ -63,6 +64,13 @@ async def approvals_decide(request):
     approver = os.environ.get("DASHBOARD_OPERATOR_NAME", "담당자")
     result = dispatch.decide(file_rel, company_id, decision, approver=approver, reason=reason)
     return JSONResponse(result)
+
+
+async def approvals_status(request):
+    """resend 모드 비동기 발송의 진행 상태 폴링 — `app.js`가 승인 직후부터 주기 조회한다."""
+    company_id = request.query_params.get("company_id", "")
+    file_rel = request.query_params.get("file", "")
+    return JSONResponse(dispatch.send_status_for(company_id, file_rel))
 
 
 async def sent(request):
@@ -89,6 +97,25 @@ async def aggregation(request):
     return templates.TemplateResponse(request, "aggregation.html", {"items": parsers.parse_aggregation()})
 
 
+async def criteria_view(request):
+    return templates.TemplateResponse(request, "criteria.html", {"cards": parsers.parse_criteria_cards()})
+
+
+async def criteria_propose(request):
+    form = await request.form()
+    file = form.get("file", "")
+    instruction = form.get("instruction", "")
+    return JSONResponse(criteria_edit.propose_edit(file, instruction))
+
+
+async def criteria_apply(request):
+    form = await request.form()
+    file = form.get("file", "")
+    old = form.get("old", "")
+    new = form.get("new", "")
+    return JSONResponse(criteria_edit.apply_edit(file, old, new))
+
+
 async def qna_page(request):
     return templates.TemplateResponse(request, "qna.html", {"logs": _qna_logs()})
 
@@ -98,14 +125,16 @@ def _qna_logs():
     out = []
     for rel in list_md_files("질의응답로그"):
         raw = read_text(rel)
-        out.append({"file": rel, "raw": raw, "html": parsers.render_markdown(raw)})
+        out.append({
+            "file": rel, "raw": raw, "html": parsers.render_markdown(raw),
+            "is_h9": parsers.is_h9_origin(raw),
+        })
     return list(reversed(out))
 
 
 async def qna_ask(request):
     """G12(질의응답) 호출 — mock 모드에서는 로그만 남기고 안내 문구를 돌려준다.
     실제 모드는 dispatch.py와 같은 전환 원칙: DISPATCH_MODE=real이면 claude -p 호출."""
-    import os
     form = await request.form()
     question = form.get("question", "")
     mode = os.environ.get("DISPATCH_MODE", "mock")
@@ -114,7 +143,8 @@ async def qna_ask(request):
         try:
             proc = subprocess.run(
                 ["claude", "-p", f"/g12-질의응답 {question}"],
-                cwd=str(data_root().parent), capture_output=True, text=True, timeout=120,
+                cwd=str(data_root().parent), capture_output=True, text=True,
+                encoding="utf-8", errors="replace", timeout=120,
             )
             answer = proc.stdout or proc.stderr
         except Exception as e:  # noqa: BLE001
@@ -146,11 +176,15 @@ routes = [
     Route("/contacts", contacts),
     Route("/approvals", approvals_view),
     Route("/approvals/decide", approvals_decide, methods=["POST"]),
+    Route("/approvals/status", approvals_status),
     Route("/sent", sent),
     Route("/replies", replies),
     Route("/scores", scores),
     Route("/queue", queue),
     Route("/aggregation", aggregation),
+    Route("/criteria", criteria_view),
+    Route("/criteria/propose", criteria_propose, methods=["POST"]),
+    Route("/criteria/apply", criteria_apply, methods=["POST"]),
     Route("/qna", qna_page),
     Route("/qna/ask", qna_ask, methods=["POST"]),
     Route("/detail", detail),
