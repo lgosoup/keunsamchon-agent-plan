@@ -2,43 +2,40 @@
 """
 라쿠텐·Qoo10 몰에서 여성 패션 카테고리 판매처(스토어) 목록을 수집하는 크롤러.
 
-목적: H5(G1 주간 재발굴) 더미 감지기(.claude/hooks/dummy_platform_poll.sh)가
-소비할 "이번 주 신규 후보" 큐를 실제 데이터로 채운다 — 팀원이 나중에 만들
-실제 리드소싱 플랫폼의 최소 대역. 여기서 나온 URL은 합성이 아니라 진짜이고,
-G1(g1-기업판정)이 이 URL을 실제로 WebFetch해서 진짜 판정을 낸다. "그 뒤
-메일만 실제로 안 보내면 된다"는 사용자 결정에 따라 발굴 단계는 전부 실물로
-한다.
+목적: H5(G1 주간 재발굴, .claude/hooks/weekly_h5_lead_crawl.sh가 매주 호출)가
+소비할 "이번 주 신규 후보" 큐를 실제 데이터로 채운다. 여기서 나온 URL은
+합성이 아니라 진짜이고, G1(g1-기업판정)이 이 URL을 실제로 WebFetch해서
+진짜 판정을 낸다. "그 뒤 메일만 실제로 안 보내면 된다"는 사용자 결정에
+따라 발굴 단계는 전부 실물로 한다.
 
 사용법:
-  pip install requests beautifulsoup4   # 최초 1회
+  pip install requests   # 최초 1회
   python scripts/crawl_leads.py
 
 출력(stdout): JSON 배열 — hook_h05_g1_weekly_rediscovery.sh 기대 입력과 동일
   [{"name": "<기업명 원어>", "urls": ["<URL>", ...]}, ...]
 
-⚠ 라쿠텐·Qoo10 둘 다 봇 차단(WAF)이 있을 수 있다 — 이 User-Agent로도 막히면
-403/523 에러가 stderr에 찍힌다. 또 두 사이트 모두 목록이 JavaScript로
-렌더링되는 영역이 있어 정적 HTML만 받는 requests로는 안 잡힐 수 있다 —
-그 경우 결과가 0건으로 나온다(지어내지 않고 정직하게 0건으로 끝낸다).
-0건이면 브라우저 개발자도구로 직접 스토어 URL 몇 개를 확인해서 알려주면
-그걸로 이어서 진행한다.
+2026-08-13 — 라쿠텐·Qoo10 원본 URL을 직접 열면 타임아웃/403(라쿠텐)·523
+오리진 오류(Qoo10)로 막혔다(실측 확인, `docs/90` 리스크54와 같은 마켓플레이스
+봇 차단). 멘토 제안으로 Jina AI Reader(`https://r.jina.ai/`)를 앞에 붙여
+우회한다 — 실제 렌더링(JS 포함) 후 정리된 Markdown으로 돌려줘 차단과 JS
+렌더링 문제를 동시에 해결한다. 그래도 0건이 나오면(예: 그 페이지 자체에
+원하는 링크가 없는 경우) 지어내지 않고 정직하게 0건으로 끝낸다 — 그때는
+브라우저로 직접 스토어 URL 몇 개를 확인해서 알려주면 그걸로 이어서 진행한다.
 """
 import json
+import os
 import re
 import sys
+
+sys.stdout.reconfigure(encoding="utf-8")
+sys.stderr.reconfigure(encoding="utf-8")
 
 try:
     import requests
 except ImportError:
-    print("pip install requests beautifulsoup4 먼저 실행하세요", file=sys.stderr)
+    print("pip install requests 먼저 실행하세요", file=sys.stderr)
     sys.exit(1)
-
-try:
-    from bs4 import BeautifulSoup
-    HAS_BS4 = True
-except ImportError:
-    HAS_BS4 = False
-    print("[경고] beautifulsoup4가 없어 추출을 못 한다 — pip install beautifulsoup4", file=sys.stderr)
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -55,52 +52,87 @@ EXISTING_SLUGS = {
 }
 
 
-def fetch(url):
-    try:
-        r = requests.get(url, headers=HEADERS, timeout=15)
-        r.raise_for_status()
-        return r.text
-    except Exception as e:
-        print(f"[실패] {url}: {e}", file=sys.stderr)
-        return None
+# 2026-08-13 — 라쿠텐·Qoo10 둘 다 원본 URL을 직접 requests로 열면 타임아웃/403
+# (라쿠텐) 또는 523 오리진 오류 페이지(Qoo10)만 돌아왔다(실측 확인, `90` 리스크54
+# 와 같은 마켓플레이스 봇 차단). 멘토 제안으로 Jina AI Reader(https://r.jina.ai/)를
+# 앞에 붙여 우회한다 — Jina가 실제로 렌더링(JS 포함)해서 정리된 Markdown으로
+# 돌려주므로 봇 차단과 "목록이 JS 렌더링" 문제를 동시에 해결한다. 대신 응답이
+# HTML이 아니라 Markdown이라 파싱을 BeautifulSoup href 매칭에서 정규식 기반
+# Markdown 링크(`[텍스트](URL)`) 매칭으로 바꿨다.
+#
+# API 키: 환경변수 JINA_API_KEY(값은 `.env`, CLAUDE.md 6절 — 이 파일엔 값을
+# 쓰지 않는다). 무료 비인증 등급은 짧은 간격의 연속 요청에서 403(레이트리밋)
+# 이 났다(실측 확인) — 키가 있으면 한도가 늘어나 그 문제가 줄어든다. 키가
+# 없어도 그대로 동작한다(무인증 요청으로 폴백).
+JINA_READER = "https://r.jina.ai/"
+JINA_API_KEY = os.environ.get("JINA_API_KEY", "")
+
+
+def fetch(url, retries=2):
+    # Jina 무료 등급은 짧은 간격의 연속 요청에서 간헐적으로 403(레이트리밋)을
+    # 낸다 — 실측으로 확인됨(같은 URL이 몇 초 뒤 재시도하면 200으로 돌아옴).
+    # 이건 "0건"과 다른 신호라 한 번은 대기 후 재시도한다.
+    import time
+    headers = dict(HEADERS)
+    if JINA_API_KEY:
+        headers["Authorization"] = f"Bearer {JINA_API_KEY}"
+    for attempt in range(retries + 1):
+        try:
+            r = requests.get(JINA_READER + url, headers=headers, timeout=30)
+            r.raise_for_status()
+            return r.text
+        except requests.exceptions.HTTPError as e:
+            if r.status_code == 403 and attempt < retries:
+                print(f"[재시도] {url}: 403(레이트리밋 추정), {attempt + 1}번째 재시도 전 30초 대기", file=sys.stderr)
+                time.sleep(30)
+                continue
+            print(f"[실패] {url}: {e}", file=sys.stderr)
+            return None
+        except Exception as e:
+            print(f"[실패] {url}: {e}", file=sys.stderr)
+            return None
 
 
 def crawl_rakuten(limit=5):
-    """라쿠텐 레디스패션 데일리 랭킹 페이지에서 스토어명+URL 추출."""
+    """라쿠텐 레디스패션 데일리 랭킹 페이지(Jina Reader 경유)에서 스토어명+URL 추출."""
     url = "https://ranking.rakuten.co.jp/daily/100371/"
-    html = fetch(url)
-    if not html or not HAS_BS4:
+    text = fetch(url)
+    if not text:
         return []
-    soup = BeautifulSoup(html, "html.parser")
     results = []
-    for a in soup.find_all("a", href=re.compile(r"rakuten\.co\.jp/[a-zA-Z0-9_-]+/?(\?|$|#)")):
-        href = a.get("href", "")
-        m = re.search(r"rakuten\.co\.jp/([a-zA-Z0-9_-]+)/?", href)
-        if not m:
+    seen = set()
+    # Markdown 링크: [텍스트](https://item.rakuten.co.jp/{shop}/... 또는 https://www.rakuten.co.jp/{shop}/...)
+    for m in re.finditer(r"\[([^\]]*)\]\((https://(?:item|www)\.rakuten\.co\.jp/([a-zA-Z0-9_-]+)/[^)\s]*)\)", text):
+        raw_name, shop_id = m.group(1), m.group(3)
+        if shop_id in ("category", "search", "ranking", "item", "event", "gold") or shop_id in seen:
             continue
-        shop_id = m.group(1)
-        if shop_id in ("category", "search", "ranking", "item", "event", "gold"):
-            continue
-        name = a.get_text(strip=True) or shop_id
+        seen.add(shop_id)
+        name = raw_name if raw_name and not raw_name.startswith("!") else shop_id
         results.append((name, f"https://www.rakuten.co.jp/{shop_id}/"))
     return _dedupe(results, limit)
 
 
 def crawl_qoo10(limit=5):
-    """Qoo10.jp 카테고리 페이지에서 판매자명+URL 추출."""
+    """Qoo10.jp 카테고리 페이지(Jina Reader 경유)에서 판매자명+URL 추출.
+
+    ⚠ 2026-08-13 실측 — 이 카테고리 페이지(cate_shop_no=1) 자체는 차단은
+    풀렸지만(Jina로 정상 수신) 개별 판매자 링크(SellerShopInfo·shop.qoo10)가
+    이 페이지엔 없었다 — 상위 카테고리 트리만 있는 페이지였다. 이건 봇 차단이
+    아니라 "이 URL이 판매자 목록이 아니다"라는 별개 문제라 이번엔 손대지
+    않았다. 판매자 목록이 실제로 있는 URL로 바꾸는 것은 다음 확인 대상이다.
+    """
     url = "https://www.qoo10.jp/gmkt.inc/Category/?cate_shop_no=1"
-    html = fetch(url)
-    if not html or not HAS_BS4:
+    text = fetch(url)
+    if not text:
         return []
-    soup = BeautifulSoup(html, "html.parser")
     results = []
-    for a in soup.find_all("a", href=re.compile(r"SellerShopInfo|shop\.qoo10")):
-        href = a.get("href", "")
-        name = a.get_text(strip=True)
-        if not name:
+    seen = set()
+    for m in re.finditer(r"\[([^\]]*)\]\((https?://[^)\s]*(?:SellerShopInfo|shop\.qoo10)[^)\s]*)\)", text):
+        raw_name, full = m.group(1), m.group(2)
+        if not raw_name or full in seen:
             continue
-        full = href if href.startswith("http") else f"https://www.qoo10.jp{href}"
-        results.append((name, full))
+        seen.add(full)
+        results.append((raw_name, full))
     return _dedupe(results, limit)
 
 

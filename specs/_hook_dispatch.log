@@ -1,0 +1,4 @@
+[2026-08-13T07:29:09Z] hook-call mode=mock cmd='/g8-cause-analysis 합성데모-fashion-04 상태/파일:합성데모-fashion-04-2026-08-11-100300.md 상태:[무응답]' label=H10
+[2026-08-13T07:29:09Z] hook-call mode=mock cmd='/g8-cause-analysis 합성데모-fashion-05 상태/파일:합성데모-fashion-05-2026-08-11-100400.md 상태:[주소 오류]' label=H10
+[2026-08-13T07:29:09Z] hook-call mode=mock cmd='/g8-cause-analysis 합성데모-fashion-06 상태/파일:합성데모-fashion-06-2026-08-11-100500.md 상태:[무응답]' label=H10
+[2026-08-13T07:29:09Z] hook-call mode=mock cmd='/g8-cause-analysis 합성데모-fashion-07 상태/파일:합성데모-fashion-07-2026-08-11-100600.md 상태:[무응답]' label=H10

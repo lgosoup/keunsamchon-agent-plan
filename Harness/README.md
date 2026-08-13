@@ -14,7 +14,7 @@
 | `data/` | 파이프라인 실행 산출물이 쌓이는 자리 — G1~G7·G12를 합성 시나리오 1회 실행한 결과가 채워져 있다(실제 발송·수신은 아님, `data/README.md` 참조) |
 | `role-table.md` | 전체 실행체 역할·입력·출력·도구 권한 한 표 |
 | `workflow.md` | 완성 시 사람이 실제로 언제·어떻게 마주치는가(리듬 3종·정지점 2곳) |
-| `hook/` | 자동 트리거 12개(H1~H12) 명세 — 언제·무슨 신호로·어느 스킬을 호출하는가. **H9(criteria 수정 감지)·H12(발송 승인 감지, 2026-08-10 신설)는 Claude Code 자체 메커니즘으로 실제 구현**(`settings.json`+`hook_h9_criteria_review.sh`+`hook_h12_approval_send_gate.sh`)이고, **나머지 10개는 더미 모듈**(`hook_h01_*.sh`~`hook_h11_*.sh`) — 감지·스케줄링은 여전히 팀원이 만드는 플랫폼의 일이고, 이 더미는 이미 감지된 신호를 정해진 인자로 받아 대상 스킬을 호출·전달 로그만 남긴다(`hook/README.md` 참조) |
+| `hook/` | 자동 트리거 12개(H1~H12) 명세 — 언제·무슨 신호로·어느 스킬을 호출하는가. **H9(criteria 수정 감지)·H12(발송 승인 감지, 2026-08-10 신설)는 Claude Code 자체 메커니즘으로 실제 구현**(`settings.json`+`hook_h9_criteria_review.sh`+`hook_h12_approval_send_gate.sh`)이고, **이 제출판 자체의 나머지 10개(`hook_h01_*.sh`~`hook_h11_*.sh`)는 이식용 예시 구현**(감지된 신호를 정해진 인자로 받아 대상 스킬을 호출·전달 로그만 남긴다, `hook/README.md` 참조) — 단 이 저장소의 라이브 실행(`.claude/hooks/`)은 그중 8개(H2·H3·H4·H6·H7·H8·H10·H11)의 감지·스케줄링까지 자체 구현(`dummy_platform_poll.sh` + Windows 작업 스케줄러)으로 이미 닫았다. 외부 팀원 플랫폼을 전제하지 않는다 |
 | `api/` | **발송 API 더미**(2026-08-10 신설) — `g5-proposal-email-dispatch`가 쓰는 `data/발송기록/`을 감지해 실제로 발송하는 외부 시스템(팀원 연동 중, `disallowed-tools: Bash`라 G5 자신은 못 부른다)이 호출할 자리를 대신한다. 입출력 계약만 지키면 실제 API로 그대로 바꿔치기 가능(`api/README.md` 참조) |
 | `docs/` | 왜 이 구조인가(`problem-and-solution.md`), 운영 변수의 단일 출처(`deployment-assumptions.md`), 확정값의 근거(`design-rationale.md`), 합성 데이터 검증 기록(`test-validation.md`) |
 
@@ -35,7 +35,7 @@
 | G11 반응 집계·기준 조정(부가) | `specs/g11-response-aggregation.md` | `criteria/g11-response-aggregation.md` | `skills/g11-response-aggregation/SKILL.md` |
 | G12 질의응답(부가) | `specs/g12-qna.md` | 별도 카드 없음(판정 문턱이 아니라 조회) | `skills/g12-qna/SKILL.md` |
 
-**MVP는 G1·G2·G4·G5·G6·G7 6개다.** 나머지(G3·G8·G9·G10·G11·G12)는 부가 기능이며, 구조는 확정돼 있지만 일부는 발송·회신 데이터가 쌓여야 실제로 값이 채워진다(각 Spec의 "확인 후 채울 것" 참조).
+**MVP는 G1·G2·G4·G5·G6·G7 6개다.** 나머지(G3·G8·G9·G10·G11·G12)는 부가 기능이며, 구조는 확정돼 있지만 일부는 발송·회신 데이터가 쌓여야 실제로 값이 채워진다(각 Spec의 "지금 쓰는 값" 참조).
 
 ## 실행
 
