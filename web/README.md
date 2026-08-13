@@ -15,8 +15,10 @@
 ## 실행
 
 ```
-DASHBOARD_DATA_ROOT=<repo>/specs python web/app.py
+DASHㅈBOARD_DATA_ROOT=<repo>/specs python web/app.py
 ```
+
+**심사 당일처럼 외부에 공개해 실제 발송(`resend` 모드)까지 시연하려면** `web/DEMO_실행_가이드.md`를 본다 — 고정 터널 URL, `DISPATCH_MODE` 옵션, Defender 예외 등록 등 운영 절차만 모아 뒀다(이 파일엔 안 둔다 — 구현과 운영을 섞지 않는다).
 
 ## 승인 액션(A안) 구현
 

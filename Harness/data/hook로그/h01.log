@@ -286,3 +286,20 @@
      저장: specs/_수신함/2026-08-13-171310------keunsamchon878-gmail.com-.json
      DISPATCHED -> /g7-회신처리
 [2026-08-13-171351] DONE h01-poller — INBOX (ALL SINCE 11-Aug-2026): 조회 12건, 회신 1건 처리, 회신 아님/기처리 11건 건너뜀
+[WATCH] 회신 감시 시작 — 60초 간격, G7 자동 호출 켜짐
+[2026-08-14-005629] MATCH (회신 헤더 + 제목 일치) from=큰삼촌 <keunsamchon878@gmail.com>
+     subject=Re: AIによる商品画像制作のご案内 — titivate 様
+     저장: specs/_수신함/2026-08-14-004916------keunsamchon878-gmail.com-.json
+     DISPATCHED -> /g7-회신처리
+[2026-08-14-005629] DONE h01-poller — INBOX (UNSEEN SINCE 31-Jul-2026): 조회 6건, 회신 1건 처리, 회신 아님/기처리 5건 건너뜀
+[2026-08-14-005736] FAILED h01-poller — IMAP 접속/로그인 실패: [Errno 11001] getaddrinfo failed
+[2026-08-14-005836] DONE h01-poller — INBOX (UNSEEN SINCE 31-Jul-2026): 조회 5건, 회신 0건 처리, 회신 아님/기처리 5건 건너뜀
+[2026-08-14-005942] DONE h01-poller — INBOX (UNSEEN SINCE 31-Jul-2026): 조회 5건, 회신 0건 처리, 회신 아님/기처리 5건 건너뜀
+[2026-08-14-010047] DONE h01-poller — INBOX (UNSEEN SINCE 31-Jul-2026): 조회 5건, 회신 0건 처리, 회신 아님/기처리 5건 건너뜀
+[2026-08-14-010152] DONE h01-poller — INBOX (UNSEEN SINCE 31-Jul-2026): 조회 5건, 회신 0건 처리, 회신 아님/기처리 5건 건너뜀
+[2026-08-14-010307] DONE h01-poller — INBOX (UNSEEN SINCE 31-Jul-2026): 조회 5건, 회신 0건 처리, 회신 아님/기처리 5건 건너뜀
+[2026-08-14-010412] DONE h01-poller — INBOX (UNSEEN SINCE 31-Jul-2026): 조회 5건, 회신 0건 처리, 회신 아님/기처리 5건 건너뜀
+[2026-08-14-010516] DONE h01-poller — INBOX (UNSEEN SINCE 31-Jul-2026): 조회 5건, 회신 0건 처리, 회신 아님/기처리 5건 건너뜀
+[2026-08-14-010620] DONE h01-poller — INBOX (UNSEEN SINCE 31-Jul-2026): 조회 5건, 회신 0건 처리, 회신 아님/기처리 5건 건너뜀
+[2026-08-14-010724] DONE h01-poller — INBOX (UNSEEN SINCE 31-Jul-2026): 조회 5건, 회신 0건 처리, 회신 아님/기처리 5건 건너뜀
+[2026-08-14-010828] DONE h01-poller — INBOX (UNSEEN SINCE 31-Jul-2026): 조회 5건, 회신 0건 처리, 회신 아님/기처리 5건 건너뜀
