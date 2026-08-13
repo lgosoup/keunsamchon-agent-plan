@@ -4,19 +4,23 @@
 <h1>오늘 할 일</h1>
 <p class="sub">파이프라인이 자동으로 만든 산출물 중, 사람이 봐야 할 것만 모았습니다.</p>
 <div class="cards">
-  <a class="card" href="/approvals">
+  <a class="card card--action" href="/approvals">
+    <div class="card-icon">📝</div>
     <div class="card-num">{{ counts.승인대기 }}</div>
     <div class="card-label">승인 대기</div>
   </a>
-  <a class="card" href="/replies">
+  <a class="card card--good" href="/replies">
+    <div class="card-icon">📬</div>
     <div class="card-num">{{ counts.새회신 }}</div>
     <div class="card-label">새 회신</div>
   </a>
-  <a class="card" href="/contacts">
+  <a class="card card--warning" href="/contacts">
+    <div class="card-icon">🔍</div>
     <div class="card-num">{{ counts.연락처미확보 }}</div>
     <div class="card-label">연락처 미확보</div>
   </a>
-  <a class="card" href="/queue">
+  <a class="card card--serious" href="/queue">
+    <div class="card-icon">🙋</div>
     <div class="card-num">{{ counts.위임필요 }}</div>
     <div class="card-label">위임 필요 (직접 연락)</div>
   </a>

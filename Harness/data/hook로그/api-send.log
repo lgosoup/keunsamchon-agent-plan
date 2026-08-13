@@ -2,3 +2,24 @@
 [2026-08-12T16:23:55Z] BLOCKED — SMTP 설정 없음(SMTP_HOST/SMTP_USER/SMTP_PASS 미설정), 실제 발송 시도 안 함
 [2026-08-12T16:24:12Z] RECEIVED send-request to=test@example.com subject=t from=(미확보)
 [2026-08-12T16:24:12Z] BLOCKED — SMTP 설정 없음(SMTP_HOST/SMTP_USER/SMTP_PASS 미설정), 실제 발송 시도 안 함
+[2026-08-13T04:42:21Z] REJECTED — stdin이 JSON이 아님
+[2026-08-13T04:42:21Z] RECEIVED send-request to=? subject=? from=onboarding@resend.dev
+[2026-08-13T04:42:21Z] REJECTED — to 또는 subject 없음
+[2026-08-13T04:42:22Z] RECEIVED send-request to=test@example.com subject=제목 테스트 from=onboarding@resend.dev
+[2026-08-13T04:42:22Z] BLOCKED — Resend 설정 없음(RESEND_API_KEY 미설정), 실제 발송 시도 안 함
+[2026-08-13T04:45:32Z] RECEIVED send-request to=anstjdgh112@gmail.com subject=INGNI STORE様 掲載アイテム353点のビジュアル制作に関するご提案 from=onboarding@resend.dev
+[2026-08-13T04:45:32Z] FAILED to=anstjdgh112@gmail.com http=403 detail=Forbidden
+[2026-08-13T04:47:31Z] RECEIVED send-request to=anstjdgh112@gmail.com subject=INGNI STORE様 掲載アイテム353点のビジュアル制作に関するご提案 from=onboarding@resend.dev
+[2026-08-13T04:47:31Z] SENT(resend) to=anstjdgh112@gmail.com message_id=2b210f3c-2117-463b-9e0e-b42501fb303c
+[2026-08-13T05:09:40Z] RECEIVED send-request to=anstjdgh112@gmail.com subject=titivate 様へ ― AIを活用した商品画像制作サービスのご提案 from=onboarding@resend.dev
+[2026-08-13T05:09:40Z] SENT(resend) to=anstjdgh112@gmail.com message_id=9024ded1-271b-4e59-99bc-37518a5f1b77
+[2026-08-13T05:53:55Z] RECEIVED send-request to=edu_591@iceu.kr subject=[검증] Resend 계정 소유자 확인 from=onboarding@resend.dev
+[2026-08-13T05:53:55Z] SENT(resend) to=edu_591@iceu.kr message_id=84231307-5109-4d89-8652-4259c0376727
+[2026-08-13T06:06:03Z] RECEIVED send-request to=keunsamchon878@gmail.com subject=titivate 様へ ― AIを活用した商品画像制作サービスのご提案 from=onboarding@resend.dev
+[2026-08-13T06:06:03Z] SENT(resend) to=keunsamchon878@gmail.com message_id=954d37cd-3d36-4d12-b023-c19a04b5a3c3
+[2026-08-13T06:45:44Z] RECEIVED send-request to=keunsamchon878@gmail.com subject=AIによる商品画像制作のご案内 — titivate 様 from=onboarding@resend.dev
+[2026-08-13T06:45:44Z] SENT(resend) to=keunsamchon878@gmail.com message_id=d1e9f65e-e82f-47b0-9605-a378c2552032
+[2026-08-13T07:02:40Z] RECEIVED send-request to=keunsamchon878@gmail.com subject=AIによる商品画像制作のご案内 — titivate 様 from=onboarding@resend.dev
+[2026-08-13T07:02:40Z] SENT(resend) to=keunsamchon878@gmail.com message_id=a58436c6-44f4-41c5-87ce-184848be5f08
+[2026-08-13T08:12:53Z] RECEIVED send-request to=keunsamchon878@gmail.com subject=AIによる商品画像制作のご案内 — titivate 様 from=onboarding@resend.dev
+[2026-08-13T08:12:53Z] SENT(resend) to=keunsamchon878@gmail.com message_id=1b062c55-028f-4208-8bf7-59ed88233787

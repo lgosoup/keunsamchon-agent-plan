@@ -2,6 +2,7 @@ starlette
 uvicorn
 jinja2
 markdown-it-py
+python-multipart  # request.form() 파싱에 필요 — 승인/거부(/approvals/decide), 질의응답(/qna/ask) 둘 다 이걸 씀
 
 # 개발/테스트 전용 (E2E 테스트에만 필요, 운영엔 불필요)
 playwright

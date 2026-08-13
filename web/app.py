@@ -61,7 +61,11 @@ async def sent(request):
 
 
 async def replies(request):
-    return templates.TemplateResponse(request, "replies.html", {"items": parsers.parse_replies()})
+    return templates.TemplateResponse(request, "replies.html", {
+        "items": parsers.parse_replies(),
+        "watch": parsers.watch_status(),
+        "pending": parsers.pending_replies(),
+    })
 
 
 async def scores(request):

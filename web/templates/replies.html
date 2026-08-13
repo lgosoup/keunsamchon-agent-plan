@@ -3,6 +3,42 @@
 {% block content %}
 <h1>⑥ 회신함 <span class="badge">G7</span></h1>
 <p class="sub">회신 이후(미팅·견적·계약)는 사람이 직접 처리합니다 — 이 화면은 "어떤 회신인지 쉽게 아는 것"까지만 합니다(리스크 21 결정).</p>
+
+{# 감시 상태 — "회신이 없다"와 "감시가 죽었다"를 화면에서 구분한다 #}
+<div class="watch-banner {{ 'on' if watch.active and watch.alive else ('off' if watch.active else 'none') }}">
+  {% if not watch.active %}
+    <strong>⚪ 회신 자동 감시가 설정되지 않았습니다</strong>
+    <span class="watch-detail">회신이 와도 자동으로 처리되지 않습니다. 감시를 켜려면:
+      <code>python Harness/hook/imap_reply_poller.py --watch --dispatch</code></span>
+  {% elif watch.alive %}
+    <strong>🟢 회신 자동 감시 중</strong>
+    <span class="watch-detail">
+      마지막 확인 {{ watch.last_check_text }} ({{ watch.age_sec }}초 전) · {{ watch.interval }}초 주기
+      {%- if watch.last_result %} · {{ watch.last_result }}{% endif %}
+      {%- if not watch.dispatch %} · <em>⚠ 감지만 함 — G7 자동 해석이 꺼져 있습니다(<code>--dispatch</code> 필요)</em>{% endif %}
+    </span>
+  {% else %}
+    <strong>🔴 회신 감시가 멎었습니다</strong>
+    <span class="watch-detail">마지막 확인 {{ watch.last_check_text }} ({{ watch.age_sec }}초 전, {{ watch.interval }}초 주기).
+      지금 오는 회신은 처리되지 않습니다 — 감시를 다시 실행하세요.</span>
+  {% endif %}
+</div>
+
+{% if pending %}
+<div class="panel pending-panel">
+  <h2 style="margin-top:0">⏳ 해석 중 <span class="badge warn">{{ pending|length }}건</span></h2>
+  <p class="meta">회신은 도착했고 G7이 해석·번역 검증을 진행하고 있습니다. 보통 몇 분 걸리며, 끝나면 아래 목록에 나타납니다.</p>
+  {% for p in pending %}
+  <div class="pending-item">
+    <span class="pending-spin"></span>
+    <div>
+      <div class="pending-subject">{{ p.subject or '(제목 없음)' }}</div>
+      <div class="meta">{{ p.from }} · 수신 {{ p.received_at }}</div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
 {% for r in items %}
 <div class="panel">
   <h2>{{ r.title }} <span class="badge">{{ r.분류 or '미분류' }}</span></h2>

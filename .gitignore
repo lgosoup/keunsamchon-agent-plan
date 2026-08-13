@@ -28,6 +28,8 @@ desktop.ini
 *.bak
 ~$*
 .playwright-mcp/
+__pycache__/
+*.pyc
 
 # --- 타인 저작물 (public 저장소에 올리지 않는다) ---
 # 수업 교육 콘텐츠의 지식재산권은 교육 운영 주체에 있고 복제·공개가 금지돼 있다.

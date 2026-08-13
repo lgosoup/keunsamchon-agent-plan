@@ -4,7 +4,7 @@
 import re
 from markdown_it import MarkdownIt
 
-from data_source import read_text, list_md_files
+from data_source import read_text, list_md_files, data_root
 
 # commonmark 프리셋엔 표(GFM table)가 없다 — 원문 상세 화면에 표가 아주 많아(승인란 등)
 # gfm-like로 켜되, linkify-it이 없어 linkify 규칙만 끈다.
@@ -213,7 +213,10 @@ def parse_sent():
 # ---------- G7 회신함 ----------
 
 def parse_replies():
-    files = list_md_files("replies")
+    # G7은 번역 검증용 추출본을 `replies/_검증입력/`에도 남긴다(감사 기록).
+    # 그건 완성 레코드가 아니라 중간 산출물이라 회신함에 섞이면 안 된다 —
+    # 발송대기에서 `_검증입력`을 빼는 것과 같은 이유(2026-08-13).
+    files = list_md_files("replies", exclude_dirs=("_검증입력",))
     out = []
     for rel in files:
         raw = read_text(rel)
@@ -227,6 +230,76 @@ def parse_replies():
             "분류": category, "요지": summary, "요구": ask,
         })
     return out
+
+
+# ---------- 회신 자동 감시 상태 (H1 폴러) ----------
+
+def watch_status():
+    """회신 감시 루프가 살아 있는가 — `Harness/hook/imap_reply_poller.py`의 하트비트.
+
+    "회신이 안 온 것"과 "감시가 죽은 것"은 화면에서 같아 보인다. 그 둘을 구분
+    못 해 사용자가 정상 동작을 실패로 오해한 적이 있어(2026-08-13) 상태를
+    명시한다."""
+    import json
+    import time
+    raw = read_text("_watch.json")
+    if not raw:
+        return {"active": False}
+    try:
+        data = json.loads(raw)
+    except ValueError:
+        return {"active": False}
+
+    interval = data.get("interval") or 60
+    age = time.time() - (data.get("last_check") or 0)
+    # 한 주기를 놓치는 건 흔하다(네트워크 순단). 두 주기를 넘기면 죽은 것으로 본다.
+    alive = age < max(interval * 2 + 30, 150)
+    return {
+        "active": True,
+        "alive": alive,
+        "watching": data.get("watching", False),
+        "dispatch": data.get("dispatch", False),
+        "last_check_text": data.get("last_check_text", "?"),
+        "interval": interval,
+        "age_sec": int(age),
+        "last_result": data.get("last_result", ""),
+    }
+
+
+def pending_replies():
+    """캡처는 됐지만 아직 G7 레코드가 안 만들어진 회신 — "해석 중" 표시용.
+
+    상관 규칙: 스테이징 파일명의 `{수신일시}`로 시작하는 레코드가
+    `replies/`에 있으면 처리 완료로 본다(Spec의 레코드 파일명 규칙
+    `{수신일시}-{식별자}.md`가 그 대응을 보장한다)."""
+    import json
+    base = data_root() / "_수신함"
+    if not base.is_dir():
+        return []
+
+    done_prefixes = set()
+    for rel in list_md_files("replies", exclude_dirs=("_검증입력",)):
+        name = rel.rsplit("/", 1)[-1]
+        done_prefixes.add(name[:17])  # YYYY-MM-DD-HHMMSS 길이
+
+    out = []
+    for p in sorted(base.glob("*.json")):
+        if p.name.startswith("_"):
+            continue  # _watch.json 등 상태 파일
+        try:
+            d = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        received = d.get("received_at", "")
+        if received and received[:17] in done_prefixes:
+            continue  # 레코드가 이미 나왔다
+        out.append({
+            "received_at": received,
+            "from": d.get("from", ""),
+            "subject": d.get("subject", ""),
+            "file": f"_수신함/{p.name}",
+        })
+    return sorted(out, key=lambda x: x["received_at"], reverse=True)
 
 
 # ---------- G3 순위표(부가) ----------
@@ -278,9 +351,13 @@ def parse_aggregation():
     out = []
     for rel in files:
         raw = read_text(rel)
-        m = re.search(r"## 1절[\s\S]*?\n(.*?)(?:\n## |\Z)", raw, re.S)
+        # 두 표기 관례를 다 받는다 — parsers.py의 _APPROVAL_HEADER_RE와 동일한 이유:
+        # web/test-fixtures(옛 관례) "## 1절 ..."과 실제 g11-반응집계 스킬이 내는
+        # "## 1. ..."(아라비아 숫자 + 마침표) 표기가 서로 달라 실물 파일에서 파서가
+        # 0건을 잡는 것으로 이 불일치가 드러났다(2026-08-13).
+        m = re.search(r"## (?:1절|1\.)[\s\S]*?\n(.*?)(?:\n## |\Z)", raw, re.S)
         table = _table_rows(m.group(1)) if m else []
-        m2 = re.search(r"## 2절[\s\S]*?\n(.*?)(?:\n## |\Z)", raw, re.S)
+        m2 = re.search(r"## (?:2절|2\.)[\s\S]*?\n(.*?)(?:\n## |\Z)", raw, re.S)
         proposals = m2.group(1).strip() if m2 else ""
         out.append({"file": rel, "table": table, "proposals": proposals})
     return out

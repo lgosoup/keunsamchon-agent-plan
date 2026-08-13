@@ -1,0 +1,288 @@
+[2026-08-13-142539] BLOCKED h01-poller — IMAP 설정 없음(IMAP_USER/IMAP_PASS 필요), 접속 시도 안 함
+[2026-08-13-143615] RECEIVED h01-poller — INBOX에서 UNSEEN 5557건 발견
+  -> CAPTURED from=Gmail팀 <mail-noreply@google.com> subject=휴대전화에서 Gmail을 이용해 보세요.
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-04-13-092508-Gmail---mail-noreply-google.com-.json
+  -> CAPTURED from=Gmail팀 <mail-noreply@google.com> subject=주소록 및 이전 이메일 가져오기
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-04-13-092508-Gmail---mail-noreply-google.com-.json
+  -> CAPTURED from=Gmail팀 <mail-noreply@google.com> subject=Gmail을 색상과 테마로 맞춤설정하기
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-04-13-092509-Gmail---mail-noreply-google.com-.json
+  -> CAPTURED from=Google Play <noreply-googleplay@google.com> subject=새봄맞이 추천 콘텐츠 : 영화 기대신작+ 3천원 이하 특가도서
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-04-21-154543-Google-Play--noreply-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <noreply-googleplay@google.com> subject=똑똑한 독서 도우미 앱 +어벤져스 영화 50% 할인
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-04-26-045013-Google-Play--noreply-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <noreply-googleplay@google.com> subject=어린이날 할인 특집/ 영화 500원 균일가/ 9일간의 게임할인 축제
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-05-02-063405-Google-Play--noreply-googleplay-google.com-.json
+  -> CAPTURED from=Google+ 팀 <noreply-daa26fef@plus.google.com> subject=Google+ 시작하기
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-05-06-035659-Google-----noreply-daa26fef-plus.google.com-.json
+  -> CAPTURED from=Google Play <noreply-googleplay@google.com> subject=어버이날 선물 대세는 스마트 앱+ 가정의 달 특집 영화 할인
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-05-08-185605-Google-Play--noreply-googleplay-google.com-.json
+  -> CAPTURED from=Google+ 팀 <noreply-475ba29f@plus.google.com> subject=이번 주 Google+에 놓치기 아까운 소식이 3개 있습니다.
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-05-15-105237-Google-----noreply-475ba29f-plus.google.com-.json
+  -> CAPTURED from=Google Play <noreply-googleplay@google.com> subject=영화를 사랑하는 모든 이들을 위한 추천 앱
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-05-16-083053-Google-Play--noreply-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <noreply-googleplay@google.com> subject=아웃도어 스포츠 무료 앱 / 게임 +  알뜰하게 영화보기
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-05-23-091608-Google-Play--noreply-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <noreply-googleplay@google.com> subject=출퇴근길에 가볍게 즐기는 무료 게임 + 신간도서
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-05-30-175320-Google-Play--noreply-googleplay-google.com-.json
+  -> CAPTURED from="Google+" <noreply-f07dde87@plus.google.com> subject=프로필 사진 추가
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-06-05-060003--Google----noreply-f07dde87-plus.google.com-.json
+  -> CAPTURED from=Google Play <noreply-googleplay@google.com> subject=윌 스미스 영화 할인전 + 넥서스4 국내출시
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-06-06-170716-Google-Play--noreply-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <noreply-googleplay@google.com> subject=나의 일상을 더욱 스마트하게 만들고 싶다면
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-06-13-171949-Google-Play--noreply-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <noreply-googleplay@google.com> subject=최대 60% 대박 게임 할인전 +여름을 위한 다이어트 프로젝트
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-06-20-170441-Google-Play--noreply-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <noreply-googleplay@google.com> subject=바쁜 당신을 위한 쇼핑 어시스턴트 + 4일간의 게임할인
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-06-28-024052-Google-Play--noreply-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <noreply-googleplay@google.com> subject=남들 다한다는 재테크, 구글 플레이의 도움을 받아보세요.
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-07-04-103239-Google-Play--noreply-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <noreply-googleplay@google.com> subject=추억을 플레이하세요. Google Play 8비트 게임 모음.
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-07-11-080842-Google-Play--noreply-googleplay-google.com-.json
+  -> CAPTURED from="Google+" <noreply-f07dde87@plus.google.com> subject=프로필 사진 추가
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-07-17-102246--Google----noreply-f07dde87-plus.google.com-.json
+  -> CAPTURED from=Google Play <noreply-googleplay@google.com> subject=오블리비언, 그리고 톰 크루즈
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-07-18-064638-Google-Play--noreply-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <noreply-googleplay@google.com> subject=장마야 물렀거라! - 여름맞이 할인 특집
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-07-26-092401-Google-Play--noreply-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <noreply-googleplay@google.com> subject=깔아주고 예쁨받으세요 - 여친용 게임 특집
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-08-01-094131-Google-Play--noreply-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <noreply-googleplay@google.com> subject=구글플레이와 함께 하는 여름음악 축제, 그리고 영화對戰: 동양귀신 vs 서양귀신
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-08-09-032436-Google-Play--noreply-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=아이언맨 3, 구글플레이 도착! 그리고 즐거운 휴가용 앱과 게임
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-08-16-115058-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from="Google+" <noreply-f07dde87@plus.google.com> subject=이번 주 Google+ 인기 소식
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-08-23-115358--Google----noreply-f07dde87-plus.google.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=생산성 앱과 함께 의욕 충만한 가을 준비, 그리고 잠깐의 휴식을 위한 러닝게임 모음
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-08-29-084151-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=no-reply@accounts.google.com subject=Google 계정 비밀번호가 변경되었습니다.
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-09-16-051653-no-reply-accounts.google.com.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=Welcome to YouTube!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-09-17-141457-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=Google Play게임을 소개합니다
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-09-26-102022-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=구글 플레이와 함께하는 가을 감성 충전 - 가을 문화 산책 앱 콜렉션 그리고 다양한 책과 영화 할인
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-10-04-094048-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=12년만에 돌아온 몬스터 시리즈
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-10-10-063508-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from="Google+" <noreply-f07dde87@plus.google.com> subject=프로필 사진 추가
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-10-16-152634--Google----noreply-f07dde87-plus.google.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=영화의 시작 10분을 보고 판단하세요!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-10-17-085654-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=Google Play에서 핼러윈을 만끽하세요!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-10-25-094251-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=주말은 Google Play팀이 추천하는 게임, 영화, 책과 함께!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-11-01-072549-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=연인들을 위한 Google Play 종합선물세트!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-11-08-102759-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=주말은 Google Play팀이 추천하는 게임, 영화, 책과 함께!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-11-22-121453-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=Google Play에서 깜짝 게임 세일을 만나세요!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-11-29-101134-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=올해 구글플레이에서 가장 빛난 콘텐츠를 소개합니다!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-12-05-114825-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=양띵 게임소개영상 보고 게임 골라잡기!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-12-13-073033-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from="Google+" <noreply-f07dde87@plus.google.com> subject=이번 주 Google+ 인기 소식
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-12-18-214300--Google----noreply-f07dde87-plus.google.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=구글플레이가 제안하는 크리스마스 맞이 할인 콘텐츠를 마음껏 즐기세요!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-12-20-095717-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=구글플레이가 드리는 새해 종합 할인 선물 세트!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2013-12-30-123557-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from='Gmail 팀' <mail-noreply@google.com> subject=Gmail 업데이트: Google+ 친구와 메일 주고받기
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-01-10-002527--Gmail-----mail-noreply-google.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=새해맞이 할인도서를 만날 수 있는 마지막 기회!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-01-10-095530-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "크루키드맨] 대도서관 공포게임 실황 2화 - 등이 굽은 남자"
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-01-13-071127-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=운동, 공부, 다이어트 등 새해 결심을 도와드립니다!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-01-17-052603-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "우애] 대도서관 공포게임 실황 1화"
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-01-20-054341-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=구글플레이에서 소개드리는 재미난 게임 모음!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-01-24-085512-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "세븐 미스테리] 대도서관 공포게임 실황 3화 최종화 - 베트남 공포게임"
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-01-27-131134-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=설 연휴 특별 할인! 20% 할인부터 무료까지!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-02-01-023353-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "마영전 발칙한 쇼 2화 - 대도서관과 레이디스코드가 함께해요! (마비노기 영웅전)"
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-02-02-222613-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=스테디셀러 도서 모음이 오픈되었습니다!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-02-07-101407-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "디스가이아 D2] 대도서관 실황 리뷰 2화 최종화 - 폐인 양성 게임의 진수!"
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-02-10-024652-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=발렌타인 데이 특집으로 여러분을 모십니다!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-02-14-104934-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "떠올리는 기억] 대도서관 공포게임 실황 7화 - 이건 공포라기보단 순정만화?"
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-02-17-062149-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=겨울 스포츠의 클라이맥스를 구글플레이와 함께!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-02-21-075108-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "구글 게임 크리에이터 데이] 대도서관의 유튜브 이야기 (The Great Library) GCD"
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-02-24-023024-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=여러분의 새학기를 Google Play가 책임집니다!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-02-28-085900-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "대도림픽] 제1회 대도서관 마인크래프트 올림픽 2화 - 꿀꿀이 레이싱 & 펜싱"
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-03-03-081158-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "대도림픽] 제1회 대도서관 마인크래프트 올림픽 3화 - 조정 & OX퀴즈 & 미로찾기"
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-03-04-082720-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=구글플레이의 2주년을 맞이하여 감사의 선물을 드립니다!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-03-07-074211-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "롤러코스터 타이쿤3] 대도서관 실황 11화 - 애증의 서부테마, SF테마"
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-03-10-142330-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from="Google+" <noreply-f07dde87@plus.google.com> subject=이번 주 Google+ 인기 소식
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-03-10-164030--Google----noreply-f07dde87-plus.google.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject='겨울왕국'과 그의 친구들이 뭉쳤다!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-03-14-070139-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "탈출게임] 대도서관 공포게임 실황 2화 - 패러디가 넘치는 연출 좋은 호러 게임"
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-03-17-060223-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=더욱 풍부해진 재미보장 게임과 함께 주말을 즐겁게!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-03-20-072647-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=철구TV: "철구 엄삼용 합동방송 몸으로 말해요 스피드 퀴즈!! (4/5)" and more videos
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-03-23-231717-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=매일매일이 신나는 게임들의 발견!
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-03-28-102913-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "어느 마술사의 꿈] 대도서관 실황 - 서정적이고 감성적 스토리의 플래시 게임" and more videos
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-03-31-042231-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "마인크래프트] 대도서관+대정령+머독 합동방송 1화 (대도 시점)"
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-04-07-054142-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=출근길에 한판, 퇴근할때 한판
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-04-11-020127-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "페이퍼 플리즈] 대도서관 실황 4화 - 여권, 내놓으시오! (Paper, Please)" and more videos
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-04-14-033423-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "심즈3] 시즌3 화려한 일족 44화 상상친구가 사람이 되었어요! (대도서관 심즈)"
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-04-20-183131-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "대도서관의 MLB 더쇼 14 - 신의 주루 플레이 (RTTS 모드)"
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-04-27-213259-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "배틀필드4] 대도서관 실황 9화 최종화 - 실제 전쟁터에 온 느낌! (Battle Field 4)"
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-05-04-223205-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "대도서관] 아웃라스트 휘슬블로어 5화 최종화 - 본편보다 더 무서운 DLC!"
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-05-11-215212-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from=Google Play <news-googleplay@google.com> subject=주말은 Google Play와 함께
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-05-16-125945-Google-Play--news-googleplay-google.com-.json
+  -> CAPTURED from=YouTube <noreply@youtube.com> subject=대도서관TV: "대도서관 농구 실력 - 10년 만에 농구는 힘들었다!"
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2014-05-18-221635-YouTube--noreply-youtube.com-.json
+  -> CAPTURED from="Google+" <noreply-168573f1@plus.google.com> subject=이상아님이 Google+에서 나를 추가했습니다.
+[2026-08-13-150512] RECEIVED h01-poller — INBOX (UNSEEN SINCE 30-Jul-2026): 5건 조회 (우리 발송 제목 7종과 대조)
+[2026-08-13-150512] DONE h01-poller — 회신 0건 처리, 회신 아님 5건 건너뜀(건드리지 않음)
+[2026-08-13-150816] RECEIVED h01-poller — INBOX (UNSEEN SINCE 30-Jul-2026): 5건 조회 (우리 발송 제목 7종과 대조)
+[2026-08-13-150816] DONE h01-poller — 회신 0건 처리, 회신 아님 5건 건너뜀(건드리지 않음)
+[2026-08-13-150843] RECEIVED h01-poller — INBOX (ALL SINCE 11-Aug-2026): 7건 조회 (우리 발송 제목 7종과 대조)
+  -> MATCH (제목 일치(회신 헤더 없음))
+  -> CAPTURED from=onboarding@resend.dev subject=titivate 様へ ― AIを活用した商品画像制作サービスのご提案
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2026-08-13-060557-onboarding-resend.dev.json
+  -> MATCH (회신 헤더 + 제목 일치)
+  -> CAPTURED from=큰삼촌 <keunsamchon878@gmail.com> subject=Re: titivate 様へ ― AIを活用した商品画像制作サービスのご提案
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2026-08-13-150800------keunsamchon878-gmail.com-.json
+[2026-08-13-150843] DONE h01-poller — 회신 2건 처리, 회신 아님 5건 건너뜀(건드리지 않음)
+     (--dispatch 를 붙이면 G7 해석까지 이어집니다)
+[2026-08-13-150929] RECEIVED h01-poller — INBOX (ALL SINCE 11-Aug-2026): 7건 조회 (우리 발송 제목 7종과 대조)
+  -> MATCH (회신 헤더 + 제목 일치)
+  -> CAPTURED from=큰삼촌 <keunsamchon878@gmail.com> subject=Re: titivate 様へ ― AIを活用した商品画像制作サービスのご提案
+     발송 대조: (미확정 — 대조되는 발송 기록 없음)
+     저장: specs/_수신함/2026-08-13-150800------keunsamchon878-gmail.com-.json
+[2026-08-13-150929] DONE h01-poller — 회신 1건 처리, 회신 아님 6건 건너뜀(건드리지 않음)
+     (--dispatch 를 붙이면 G7 해석까지 이어집니다)
+[WATCH] 회신 감시 시작 — 30초 간격, G7 자동 호출 켜짐
+[2026-08-13-152729] MATCH (회신 헤더 + 제목 일치) from=큰삼촌 <keunsamchon878@gmail.com>
+     subject=Re: titivate 様へ ― AIを活用した商品画像制作サービスのご提案
+     저장: specs/_수신함/2026-08-13-150800------keunsamchon878-gmail.com-.json
+  -> FAILED to dispatch: [WinError 2] 지정된 파일을 찾을 수 없습니다
+[2026-08-13-152729] DONE h01-poller — INBOX (ALL SINCE 11-Aug-2026): 조회 7건, 회신 1건 처리, 회신 아님/기처리 6건 건너뜀
+[WATCH] 회신 감시 시작 — 60초 간격, G7 자동 호출 켜짐
+[2026-08-13-152948] MATCH (회신 헤더 + 제목 일치) from=큰삼촌 <keunsamchon878@gmail.com>
+     subject=Re: titivate 様へ ― AIを活用した商品画像制作サービスのご提案
+     저장: specs/_수신함/2026-08-13-150800------keunsamchon878-gmail.com-.json
+     DISPATCHED -> /g7-회신처리
+[2026-08-13-152948] DONE h01-poller — INBOX (ALL SINCE 11-Aug-2026): 조회 7건, 회신 1건 처리, 회신 아님/기처리 6건 건너뜀
+[2026-08-13-154847] MATCH (회신 헤더 + 제목 일치) from=큰삼촌 <keunsamchon878@gmail.com>
+     subject=Re: AIによる商品画像制作のご案内 — titivate 様
+     저장: specs/_수신함/2026-08-13-154840------keunsamchon878-gmail.com-.json
+     DISPATCHED -> /g7-회신처리
+[2026-08-13-154847] DONE h01-poller — INBOX (ALL SINCE 11-Aug-2026): 조회 9건, 회신 1건 처리, 회신 아님/기처리 8건 건너뜀
+[WATCH] 회신 감시 시작 — 60초 간격, G7 자동 호출 켜짐
+[2026-08-13-171351] MATCH (회신 헤더 + 제목 일치) from=큰삼촌 <keunsamchon878@gmail.com>
+     subject=Re: AIによる商品画像制作のご案内 — titivate 様
+     저장: specs/_수신함/2026-08-13-171310------keunsamchon878-gmail.com-.json
+     DISPATCHED -> /g7-회신처리
+[2026-08-13-171351] DONE h01-poller — INBOX (ALL SINCE 11-Aug-2026): 조회 12건, 회신 1건 처리, 회신 아님/기처리 11건 건너뜀

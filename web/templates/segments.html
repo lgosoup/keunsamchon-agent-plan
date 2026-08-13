@@ -7,14 +7,20 @@
   <h2>{{ s.title }} {% if s.is_trial %}<span class="badge warn">시험 실행</span>{% endif %}
     <a class="detail-link" href="/detail?path={{ s.file }}">원문 보기</a></h2>
   <h3>무리 정의</h3>
-  <table class="data"><thead><tr>{% for k in s.definitions[0].keys() if s.definitions %}<th>{{ k }}</th>{% endfor %}</tr></thead>
+  {% if s.definitions %}
+  <table class="data"><thead><tr>{% for k in s.definitions[0].keys() %}<th>{{ k }}</th>{% endfor %}</tr></thead>
   <tbody>{% for d in s.definitions %}<tr>{% for v in d.values() %}<td>{{ v }}</td>{% endfor %}</tr>{% endfor %}</tbody></table>
+  {% else %}<p class="empty">아직 없음</p>{% endif %}
   <h3>배정</h3>
-  <table class="data"><thead><tr>{% for k in s.assignments[0].keys() if s.assignments %}<th>{{ k }}</th>{% endfor %}</tr></thead>
+  {% if s.assignments %}
+  <table class="data"><thead><tr>{% for k in s.assignments[0].keys() %}<th>{{ k }}</th>{% endfor %}</tr></thead>
   <tbody>{% for d in s.assignments %}<tr>{% for v in d.values() %}<td>{{ v }}</td>{% endfor %}</tr>{% endfor %}</tbody></table>
+  {% else %}<p class="empty">아직 없음</p>{% endif %}
   <h3>미분류</h3>
-  <table class="data"><thead><tr>{% for k in s.unassigned[0].keys() if s.unassigned %}<th>{{ k }}</th>{% endfor %}</tr></thead>
+  {% if s.unassigned %}
+  <table class="data"><thead><tr>{% for k in s.unassigned[0].keys() %}<th>{{ k }}</th>{% endfor %}</tr></thead>
   <tbody>{% for d in s.unassigned %}<tr>{% for v in d.values() %}<td>{{ v }}</td>{% endfor %}</tr>{% endfor %}</tbody></table>
+  {% else %}<p class="empty">아직 없음</p>{% endif %}
 </div>
 {% else %}
 <p class="empty">세그먼트가 아직 없습니다.</p>
