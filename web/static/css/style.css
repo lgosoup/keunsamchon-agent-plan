@@ -47,6 +47,12 @@
   --sidebar-bg-2: #1f2333;
   --sidebar-text: #c6cadd;
   --sidebar-text-dim: #7d8296;
+
+  /* 다계열 차트용 범주형 토큰 — dataviz 스킬 palette.md의 검증된 8슬롯 중
+     all-pairs 안전한 앞 3슬롯(추이)과 뒤 3슬롯+무채색 1(업종)을 썼다.
+     status 팔레트(good 등)와 겹치지 않게 의도적으로 다른 슬롯을 골랐다. */
+  --cat-trend-1: #2a78d6; --cat-trend-2: #eb6834; --cat-trend-3: #1baf7a;
+  --cat-ind-1: #008300; --cat-ind-2: #4a3aa7; --cat-ind-3: #e87ba4; --cat-ind-4: #898781;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -84,6 +90,8 @@
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.45);
+    --cat-trend-1: #3987e5; --cat-trend-2: #d95926; --cat-trend-3: #199e70;
+    --cat-ind-1: #008300; --cat-ind-2: #9085e9; --cat-ind-3: #d55181; --cat-ind-4: #898781;
   }
 }
 :root[data-theme="dark"] {
@@ -99,6 +107,8 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.45);
+  --cat-trend-1: #3987e5; --cat-trend-2: #d95926; --cat-trend-3: #199e70;
+  --cat-ind-1: #008300; --cat-ind-2: #9085e9; --cat-ind-3: #d55181; --cat-ind-4: #898781;
 }
 
 * { box-sizing: border-box; }
@@ -231,6 +241,122 @@ tr.bad .pill::before { color: var(--critical); }
   padding: 16px 20px; font-size: 0.9rem; color: var(--text); line-height: 1.7;
   border: 1px solid transparent;
 }
+
+/* ---------- 홈 — 성과(파이프라인 현황), 2026-08-13 신설 ----------
+   "할 일" 카드(위)와 대칭되는 "성과" 섹션 — 브리프 3대 요구가 실제로 얼마나
+   진행됐는지를 숫자·차트로 보여준다(docs/35 2절). 새 색상을 만들지 않고
+   위 상태 팔레트(good/warning/serious/critical)를 그대로 재사용한다. */
+
+.stat-row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; }
+.stat-tile {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 16px 20px; min-width: 190px; flex: 1;
+  box-shadow: var(--shadow-sm);
+}
+.stat-label { color: var(--muted); font-size: 0.82rem; display: flex; align-items: center; gap: 6px; }
+.stat-value { font-size: 1.9rem; font-weight: 700; margin-top: 4px; letter-spacing: -0.01em; }
+.stat-context { color: var(--faint); font-size: 0.78rem; margin-top: 4px; line-height: 1.5; }
+
+.chart-panel h3, .composition-panel h3 { margin-top: 0; }
+.chart-panel .sub, .composition-panel .sub { margin-bottom: 0; }
+
+/* 가로 막대 리스트 — 리드타임·회신 지연·회신 분류·기대효과에서 공용으로 쓴다.
+   막대 색은 --c로 주입한다(기본값 accent). */
+.hbar-list { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.hbar-row { display: grid; grid-template-columns: 150px 1fr 52px; align-items: center; gap: 12px; }
+.hbar-label {
+  font-size: 0.85rem; color: var(--text); display: flex; align-items: center; gap: 6px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.hbar-track { background: var(--panel-alt); border-radius: 4px; height: 16px; overflow: hidden; }
+.hbar-fill {
+  height: 100%; background: var(--c, var(--accent)); border-radius: 0 4px 4px 0;
+  transition: width 300ms ease;
+}
+.hbar-value { font-size: 0.86rem; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.hbar-value .unit { font-weight: 500; color: var(--muted); font-size: 0.78em; }
+
+.stack-bar {
+  display: flex; height: 18px; border-radius: 4px; overflow: hidden;
+  gap: 2px; background: var(--panel-alt); margin-top: 12px;
+}
+.stack-seg { height: 100%; }
+.stack-seg:first-child { border-radius: 4px 0 0 4px; }
+.stack-seg:last-child { border-radius: 0 4px 4px 0; }
+.stack-seg.good { background: var(--good); }
+.stack-seg.warning { background: var(--warning); }
+.stack-seg.serious { background: var(--serious); }
+.stack-seg.critical { background: var(--critical); }
+
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; font-size: 0.82rem; color: var(--muted); }
+.legend-chip { display: inline-flex; align-items: center; gap: 6px; }
+.legend-chip::before { content: "●"; font-size: 0.7rem; color: var(--c, var(--muted)); }
+.legend-chip.good::before { color: var(--good); }
+.legend-chip.warning::before { color: var(--warning); }
+.legend-chip.serious::before { color: var(--serious); }
+.legend-chip.critical::before { color: var(--critical); }
+
+/* ---------- 선 그래프(추이) — 순수 SVG, JS 없음 ---------- */
+
+.linechart-wrap { margin-top: 12px; overflow-x: auto; }
+.linechart { width: 100%; height: auto; display: block; }
+.linechart-grid { stroke: var(--border); stroke-width: 1; }
+.trend-line { fill: none; stroke: var(--c, var(--accent)); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.trend-dot { fill: var(--c, var(--accent)); stroke: var(--panel); stroke-width: 2; r: 3.5; }
+.trend-dot:hover { r: 5; }
+.linechart-caption { display: flex; justify-content: space-between; color: var(--faint); font-size: 0.76rem; margin-top: 4px; }
+
+/* ---------- 도넛 차트(업종 분포) ---------- */
+
+.donut-wrap { display: flex; align-items: center; gap: 24px; margin-top: 12px; flex-wrap: wrap; }
+.donut { position: relative; width: 148px; height: 148px; border-radius: 50%; flex-shrink: 0; }
+.donut-hole {
+  position: absolute; inset: 22px; border-radius: 50%; background: var(--panel);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.donut-hole .donut-total { font-size: 1.5rem; font-weight: 700; }
+.donut-hole .donut-total-label { font-size: 0.7rem; color: var(--muted); }
+.donut-legend { display: flex; flex-direction: column; gap: 8px; font-size: 0.86rem; }
+.donut-legend .legend-chip { font-size: 0.86rem; }
+.donut-legend .legend-chip strong { font-variant-numeric: tabular-nums; }
+
+/* ---------- 히트맵(업종 × 연락처 상태) ---------- */
+
+.heatmap-wrap { margin-top: 12px; overflow-x: auto; }
+.heatmap { display: grid; gap: 4px; font-size: 0.82rem; }
+.heatmap .hm-corner { }
+.heatmap .hm-col-label {
+  color: var(--muted); font-weight: 600; text-align: center; padding-bottom: 4px; white-space: nowrap;
+}
+.heatmap .hm-row-label {
+  color: var(--muted); font-weight: 600; display: flex; align-items: center; padding-right: 8px; white-space: nowrap;
+}
+.heatmap .hm-cell {
+  border-radius: 6px; min-height: 40px; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.heatmap .hm-cell.light-text { color: #fff; }
+.heatmap .hm-cell.dark-text { color: var(--text); }
+
+/* ---------- 기대 효과 ("성과"와 분리) ---------- */
+
+.expected-section {
+  margin-top: 30px; border: 1px dashed var(--border-strong); border-radius: var(--radius-lg);
+  padding: 20px 24px; background: var(--panel-alt);
+}
+.expected-section h2 { margin-top: 0; }
+.expected-cards { display: flex; gap: 16px; flex-wrap: wrap; }
+.expected-card {
+  background: var(--panel); border: 1px dashed var(--border-strong); border-radius: var(--radius-md);
+  padding: 16px 20px; flex: 1; min-width: 260px;
+}
+.expected-card h4 { margin: 0 0 4px; font-size: 0.95rem; }
+.expected-source { color: var(--faint); font-size: 0.76rem; margin-bottom: 10px; }
+.range-bar-row { display: grid; grid-template-columns: 120px 1fr 90px; align-items: center; gap: 10px; margin: 8px 0; }
+.range-bar-label { font-size: 0.84rem; color: var(--text); }
+.range-bar-track { position: relative; height: 14px; background: var(--panel-alt); border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+.range-bar-fill { position: absolute; top: 0; bottom: 0; background: var(--warning); opacity: 0.55; border-radius: 4px; }
+.range-bar-value { font-size: 0.8rem; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 /* ---------- 회신 자동 감시 배너 ---------- */
 

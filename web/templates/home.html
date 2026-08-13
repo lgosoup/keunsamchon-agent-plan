@@ -28,4 +28,198 @@
 <div class="hint">
   <strong>파이프라인 순서</strong>: 후보 목록(G1) → 세그먼트(G2) → 연락처 현황(G4) → 승인 대기함(G5, 여기서만 사람이 반드시 개입) → 발송 현황(G5·G6) → 회신함(G7).
 </div>
+
+<h2>성과 — 발굴부터 영업까지 <span class="badge">브리프 충족 증거</span></h2>
+<p class="sub">위 카드는 "할 일"이고, 아래는 "이미 만든 것"이다. G1~G5 산출물을 그대로 센 값이며 새로 계산한 것이 없다.</p>
+
+<div class="stat-row">
+  <div class="stat-tile">
+    <div class="stat-label">판정 통과 <span class="badge">G1</span></div>
+    <div class="stat-value">{{ pipeline.g1.포함 }}</div>
+    <div class="stat-context">총 조사 {{ pipeline.g1.total }}건 중 · 판정불가 {{ pipeline.g1['판정 불가'] }} · 제외 {{ pipeline.g1.제외 }}</div>
+  </div>
+  <div class="stat-tile">
+    <div class="stat-label">세그먼트 <span class="badge">G2</span></div>
+    <div class="stat-value">{{ pipeline.g2.segments }}</div>
+    <div class="stat-context">배정 {{ pipeline.g2.assigned }}건 · 미분류 {{ pipeline.g2.unassigned }}건</div>
+  </div>
+  <div class="stat-tile">
+    <div class="stat-label">연락처 확보율 <span class="badge">G4</span></div>
+    <div class="stat-value">{{ pipeline.g4.secure_rate }}%</div>
+    <div class="stat-context">확보 {{ pipeline.g4.secured }} / 총 {{ pipeline.g4.total }}건 (직통 {{ pipeline.g4.grade.직통 }}·일반 {{ pipeline.g4.grade.일반 }})</div>
+  </div>
+  <div class="stat-tile">
+    <div class="stat-label">발송 완료 <span class="badge">G5</span></div>
+    <div class="stat-value">{{ pipeline.g5.sent }}</div>
+    <div class="stat-context">승인 대기 {{ pipeline.g5.pending }} · 승인 {{ pipeline.g5.approved }} · 거부 {{ pipeline.g5.rejected }}</div>
+  </div>
+</div>
+
+<div class="panel composition-panel">
+  <h3>연락처 확보 구성 (G4) — 기업이 이름까지 지목한 화면의 근거</h3>
+  <div class="stack-bar">
+    <div class="stack-seg good" style="flex: {{ pipeline.g4.확보 or 0 }}"></div>
+    <div class="stack-seg warning" style="flex: {{ pipeline.g4['메일 없음'] or 0 }}"></div>
+    <div class="stack-seg serious" style="flex: {{ pipeline.g4.미확보 or 0 }}"></div>
+  </div>
+  <div class="legend">
+    <span class="legend-chip good">확보 {{ pipeline.g4.확보 }}</span>
+    <span class="legend-chip warning">메일 없음 {{ pipeline.g4['메일 없음'] }}</span>
+    <span class="legend-chip serious">미확보 {{ pipeline.g4.미확보 }}</span>
+  </div>
+</div>
+
+<div class="panel chart-panel">
+  <h3>일별 처리량 추이 <span class="badge">선 그래프</span></h3>
+  <p class="sub">G1 판정 통과 · G4 연락처 확보 · G5 발송 승인이 날짜별로 몇 건씩 일어났는지. 전부 실측이다.</p>
+  {% if trend.has_data %}
+  <div class="linechart-wrap">
+    <svg class="linechart" viewBox="0 0 {{ trend.width }} {{ trend.height }}" preserveAspectRatio="none">
+      <line class="linechart-grid" x1="0" y1="{{ trend.height - 22 }}" x2="{{ trend.width }}" y2="{{ trend.height - 22 }}"></line>
+      {% for s in trend.series %}
+      <polyline class="trend-line" style="--c: var(--{{ s.color_cls }})" points="{{ s.points }}"></polyline>
+      {% for d in s.dots %}
+      <circle class="trend-dot" style="--c: var(--{{ s.color_cls }})" cx="{{ d.x }}" cy="{{ d.y }}" r="3.5"><title>{{ d.date }} · {{ s.label }} {{ d.v }}건</title></circle>
+      {% endfor %}
+      {% endfor %}
+    </svg>
+    <div class="linechart-caption"><span>{{ trend.first_day }}</span><span>{{ trend.last_day }}</span></div>
+  </div>
+  <div class="legend">
+    {% for s in trend.series %}
+    <span class="legend-chip" style="--c: var(--{{ s.color_cls }})">{{ s.label }} <span class="badge">{{ s.code }}</span> 누적 {{ s.total }}건</span>
+    {% endfor %}
+  </div>
+  {% else %}
+  <span class="empty">아직 날짜가 있는 데이터가 없습니다.</span>
+  {% endif %}
+</div>
+
+<div class="panel chart-panel">
+  <h3>업종별 후보 분포 <span class="badge">도넛 차트</span></h3>
+  <p class="sub">G1이 판정한 후보 {{ industry.total }}건이 업종(O5)별로 어떻게 갈렸는지. 전부 실측이다.</p>
+  {% if industry.total %}
+  <div class="donut-wrap">
+    <div class="donut" style="background: conic-gradient({% for r in industry.rows %}var(--{{ r.color_cls }}) {{ r.from }}% {{ r.from + r.pct }}%{% if not loop.last %}, {% endif %}{% endfor %})">
+      <div class="donut-hole">
+        <div class="donut-total">{{ industry.total }}</div>
+        <div class="donut-total-label">총 후보</div>
+      </div>
+    </div>
+    <div class="donut-legend">
+      {% for r in industry.rows %}
+      <span class="legend-chip" style="--c: var(--{{ r.color_cls }})">{{ r.name }} <strong>{{ r.value }}</strong>건 ({{ r.pct }}%){% if r.detail %} — {{ r.detail }}{% endif %}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+  <span class="empty">아직 후보 데이터가 없습니다.</span>
+  {% endif %}
+</div>
+
+<div class="panel chart-panel">
+  <h3>업종 × 연락처 확보 상태 <span class="badge">히트맵</span></h3>
+  <p class="sub">업종에 따라 이메일 확보 성공률이 다른지 교차로 본다. 색이 진할수록 그 칸의 건수가 많다.</p>
+  {% if heatmap.rows %}
+  <div class="heatmap-wrap">
+    <div class="heatmap" style="grid-template-columns: 110px repeat({{ heatmap.statuses|length }}, 90px);">
+      <div class="hm-corner"></div>
+      {% for s in heatmap.statuses %}<div class="hm-col-label">{{ s }}</div>{% endfor %}
+      {% for row in heatmap.rows %}
+      <div class="hm-row-label">{{ row.industry }}</div>
+      {% for cell in row.cells %}
+      <div class="hm-cell {{ 'light-text' if cell.light_text else 'dark-text' }}"
+           style="background: color-mix(in srgb, var(--accent) {{ (cell.ratio * 100) | round | int }}%, var(--panel-alt));"
+           title="{{ row.industry }} · {{ cell.status }}: {{ cell.value }}건">{{ cell.value }}</div>
+      {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+  <span class="empty">아직 연락처 데이터가 없습니다.</span>
+  {% endif %}
+</div>
+
+<div class="panel chart-panel">
+  <h3>기업 조사 → 연락처 확보까지 걸린 기간 <span class="badge">가로 막대</span></h3>
+  <p class="sub">기업별로 후보 판정일부터 연락처를 실제로 확보한 날까지 며칠 걸렸는지. 전부 실측이다.</p>
+  {% if leadtime.rows %}
+  <div class="hbar-list">
+    {% for r in leadtime.rows[:10] %}
+    <div class="hbar-row">
+      <div class="hbar-label">{{ r.label }}</div>
+      <div class="hbar-track"><div class="hbar-fill" style="width: {{ r.pct }}%"></div></div>
+      <div class="hbar-value">{{ r.days }}<span class="unit">일</span></div>
+    </div>
+    {% endfor %}
+  </div>
+  {% if leadtime.rows|length > 10 %}<p class="sub" style="margin-top:8px">상위 10건만 표시(전체 {{ leadtime.rows|length }}건)</p>{% endif %}
+  {% else %}
+  <span class="empty">판정일·탐색일이 모두 있는 기업이 아직 없습니다.</span>
+  {% endif %}
+</div>
+
+<div class="panel chart-panel">
+  <h3>회신까지 걸린 시간 <span class="badge">가로 막대</span></h3>
+  <p class="sub">발송일시부터 회신 수신일시까지.</p>
+  {% if replyinsights.latency %}
+  <div class="hbar-list">
+    {% for r in replyinsights.latency %}
+    <div class="hbar-row">
+      <div class="hbar-label">{{ r.label }}</div>
+      <div class="hbar-track"><div class="hbar-fill" style="width: {{ r.pct }}%"></div></div>
+      <div class="hbar-value">{{ r.hours }}<span class="unit">시간</span></div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <span class="empty">발송·회신 시각이 모두 있는 건이 아직 없습니다.</span>
+  {% endif %}
+</div>
+
+<div class="panel chart-panel">
+  <h3>회신 분류 분포 <span class="badge">가로 막대</span></h3>
+  <p class="sub">회신 {{ replyinsights.total_replies }}건이 어떤 성격으로 분류됐는지.</p>
+  {% if replyinsights.classification %}
+  <div class="hbar-list">
+    {% for c in replyinsights.classification %}
+    <div class="hbar-row">
+      <div class="hbar-label">{{ c.label }}</div>
+      <div class="hbar-track"><div class="hbar-fill" style="width: {{ c.pct }}%"></div></div>
+      <div class="hbar-value">{{ c.value }}<span class="unit">건</span></div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <span class="empty">아직 회신이 없습니다.</span>
+  {% endif %}
+</div>
+
+<div class="expected-section">
+  <h2>기대 효과</h2>
+  <div class="expected-cards">
+    <div class="expected-card">
+      <h4>예상 조사 처리 규모</h4>
+      <div class="expected-source">근거: {{ expected.processing_scale.source }}</div>
+      {% for r in expected.processing_scale.rows %}
+      <div class="range-bar-row">
+        <div class="range-bar-label">{{ r.label }}</div>
+        <div class="range-bar-track"><div class="range-bar-fill" style="left: {{ r.pct_low }}%; width: {{ r.pct_high - r.pct_low }}%"></div></div>
+        <div class="range-bar-value">{{ r.warm }}~{{ r.cold }}{{ expected.processing_scale.unit }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="expected-card">
+      <h4>예상 하루 승인 부담</h4>
+      <div class="expected-source">근거: {{ expected.approval_burden.source }}</div>
+      {% for r in expected.approval_burden.rows %}
+      <div class="range-bar-row">
+        <div class="range-bar-label">{{ r.label }}</div>
+        <div class="range-bar-track"><div class="range-bar-fill" style="left: {{ r.pct_low }}%; width: {{ r.pct_high - r.pct_low }}%"></div></div>
+        <div class="range-bar-value">{{ r.low }}~{{ r.high }}{{ expected.approval_burden.unit }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
 {% endblock %}

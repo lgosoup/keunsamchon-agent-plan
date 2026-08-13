@@ -20,7 +20,16 @@ templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
 
 async def home(request):
-    return templates.TemplateResponse(request, "home.html", {"counts": parsers.overview_counts()})
+    return templates.TemplateResponse(request, "home.html", {
+        "counts": parsers.overview_counts(),
+        "pipeline": parsers.pipeline_stats(),
+        "trend": parsers.daily_trend(),
+        "industry": parsers.industry_distribution(),
+        "heatmap": parsers.industry_contact_heatmap(),
+        "leadtime": parsers.lead_time_g1_to_g4(),
+        "replyinsights": parsers.reply_insights(),
+        "expected": parsers.expected_effects(),
+    })
 
 
 async def candidates(request):
